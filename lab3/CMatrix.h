@@ -28,7 +28,7 @@ public:
 	
 	// print matrix to stdout
 	void print();
-	
+        
 	// row selector -
 	// with this, you can use matrix[row][col] 
 	double * operator[]( unsigned int rowNumber );

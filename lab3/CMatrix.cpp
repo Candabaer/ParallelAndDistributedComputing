@@ -52,6 +52,7 @@ double * CMatrix::operator[]( unsigned int rowNumber ) {
     return container + (rowNumber * width );
 }
 
+
 void CMatrix::print() {
     cout << width << " " << height << endl;
     for(unsigned int i=0; i<size(); i++) {

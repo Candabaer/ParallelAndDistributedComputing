@@ -1,0 +1,9 @@
+mpic++ -O1 -c -o matrix_sequential.o matrix_sequential.cpp
+mpic++ -O1 -c -o matrix_parallel.o matrix_parallel.cpp
+mpic++ -O1 -c -o matrix_generator.o matrix_generator.cpp
+mpic++ -O1 -c -o CMatrix.o CMatrix.cpp
+mpic++  -o matrix_sequential  matrix_sequential.o  CMatrix.o
+mpic++  -o matrix_parallel  matrix_parallel.o  CMatrix.o
+mpic++  -o matrix_generator  matrix_generator.o  CMatrix.o
+./matrix_generator 10 10 >matrix-A-10x10.txt
+./matrix_generator 10 10 >matrix-B-10x10.txt

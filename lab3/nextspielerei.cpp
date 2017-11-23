@@ -47,7 +47,8 @@ int main(int argc, char** argv) {
     MPI_Comm_size(rowCom, &col_size);
 
 
-    MPI_Request requestForA, requestForB, lastRequest;
+    MPI_Request requestForA, requestForB, requestForC;
+    MPI_Status statusForA, statusForB, statusForC;
 
     //printf("WORLD rank: %d \t  Row_RANK/Col_Rank: %d/%d\n",
     //        rank ,row_rank, col_rank);
@@ -56,8 +57,7 @@ int main(int argc, char** argv) {
     ///      rank, np, col_rank, col_size);
 
     int c = 0;
-    
-    MPI_Status statusForA, statusForB;
+
     //Verteilung alle werte aus beiden matrizen;
     if (rank == 0) {
         for (int i = 0; i < msize; i++) {
@@ -65,11 +65,17 @@ int main(int argc, char** argv) {
                 int a, b;
                 a = A[i][j];
                 b = B[i][j];
-               // cout << "I am sending: " << a << " and " 
-                 //   << b << " to " << j + (i * msize) << endl;
+                // cout << "I am sending: " << a << " and " 
+                //   << b << " to " << j + (i * msize) << endl;
+                
                 MPI_Isend(&a, 1, MPI_INT, j + (i * msize), 0, MPI_COMM_WORLD, &requestForA);
                 //MPI_Wait(&requestForA, &statusForA);
                 MPI_Isend(&b, 1, MPI_INT, j + (i * msize), 0, MPI_COMM_WORLD, &requestForB);
+                if(rank == 0 && j + (i * msize) == 0)
+                    cout << "habidabidubasdaGFGdasgagEG" << endl;
+                if(rank == 3){
+                    cout << "\t DAFAQ" << endl;
+                }
                 //MPI_Wait(&requestForB, &statusForB);
             }
         }
@@ -80,78 +86,89 @@ int main(int argc, char** argv) {
     bool notEvenOnce = true;
     for (int i = 0; i < msize; i++) {
         int a, b;
-        
-        if(!notEvenOnce){
-            if(rank == 0)
-            cout << "In the end I should be here" << endl;
-            
+
+        if (notEvenOnce) {
+            notEvenOnce = false;
+            if (rank == 0)
+                cout << "FICK DICH UND HALTS MAUL" << endl;
+            MPI_Recv(&a, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+            MPI_Recv(&b, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+        } else {
+            if (rank == 0)
+                cout << "Maybe my life is a sad piece of shit and i should've studied\n"
+                    "applied arts like my mother always wanted" << endl;
+            MPI_Irecv(&a, 1, MPI_INT, MPI_ANY_SOURCE, 0, rowCom, &requestForA);
+            MPI_Irecv(&b, 1, MPI_INT, MPI_ANY_SOURCE, 0, colCom, &requestForB);
+            if (rank == 0)
+                cout << "I've messed up badly if I reached this fucking point" << endl;
+        }
+
+        if (!notEvenOnce) {
+            if (rank == 0)
+                cout << "In the end I should be here: " << endl;
+
             MPI_Isend(&a, 1, MPI_INT, (row_rank + 1) % msize, 0, rowCom, &requestForA);
             MPI_Wait(&requestForA, &statusForA);
             MPI_Isend(&b, 1, MPI_INT, (col_rank + 1) % msize, 0, colCom, &requestForB);
             MPI_Wait(&requestForB, &statusForB);
-            
-            if(rank == 0)
-            cout << "But the real question can I get here" << endl;
-        }
-        if (notEvenOnce) {
-            notEvenOnce = false;
-            if(rank == 0)
-            cout << "FICK DICH UND HALTS MAUL" << endl;
-            MPI_Recv(&a, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
-            MPI_Recv(&b, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
-           
-        /*if(rank == 0)     
-        cout << "Durchlauf: " << i << endl
-                << " col: " << ((col_rank + 1) % msize + msize) % msize << endl
-                << " row: " << ((row_rank + 1) % msize + msize) % msize << endl; 
-         */
-        } else {
-            if(rank == 0)
-            cout << "Maybe my life is a sad piece of shit and i should've studied"
-                    " applied arts like my mother always wanted" << endl;
-            MPI_Recv(&a, 1, MPI_INT, MPI_ANY_SOURCE, 0, rowCom, &statusForA);
-            MPI_Recv(&b, 1, MPI_INT, MPI_ANY_SOURCE, 0, colCom, &statusForB);
-            cout << "I've messed up badly if I reache this fucking point" << endl;
-        }
 
-        c += a*b; 
-        
-       // cout << "A*B = "<< a << " * " << b << " = "  << c << endl;
+            if (rank == 0)
+                cout << "But the real question can I get here" << endl;
         }
-         
-        // Hier cycle von a nach links und b nach oben
-        //(i % n + n) % n StackOverflow CopyPasta um den Modulo positiv zu haben
+        c += a*b;
+    }
 
-        //cout << "hier häng ich mich auf" << endl;
-
-        // cout << "rank: " << rank << " row_rank: " << row_rank << " col_rank: "
-        //        << col_rank << " value: " << c << endl;
-        //if (row_rank == 0)
-        //    cout << "Rank: " << rank << " Row Rank: " << row_rank << " Value: " << c << endl;
-        //}
+    //Hängt sich gerade auf weil 0 mit sich selber redet dieser pisser!!!!!!!!
+    if (rank == 0)
+        cout << "look at me I can't even not deadlock for fucking once " << endl;
+    //MPI_Wait(&requestForC, &statusForC);
+    /*MPI_Isend(&c, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &re
+     * questForC);
+     */
+    cout << endl;
     
-    cout << "look at me i'm a faggot" << endl;
- 
-    MPI_Send(&c, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    cout << "Rank: " << rank << " reporting in" << endl;    
+    MPI_Isend(&c, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &requestForC);
+    MPI_Wait(&requestForC, &status);
+    
+    //MPI_Recv(&a, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
 
-
-    /*if (rank == 0) {
-        cout << "Hier komm ich aber schon an" << endl;
+    if (rank == 0)
+        cout << "Pls just fucking work 000000000000 " << endl;
+    //if (rank == 1)
+    //    cout << "cmon bruh 1111111111" << endl;  
+    //if (rank == 0)
+    //  cout << "Hier komm ich aber schon an" << endl;
+    
+    if (rank == 0) {
         for (int i = 0; i < msize; i++) {
             for (int j = 0; j < msize; j++) {
-                MPI_Irecv(&c, 1, MPI_INT, j + (i * msize), 0, MPI_COMM_WORLD,
-                        &lastRequest);
+                //MPI_Wait(&requestForC, &status);
+                //MPI_Irecv(&c, 1, MPI_INT, j + (i * msize), 0, MPI_COMM_WORLD,
+                //        &requestForC);
+                //MPI_Wait(&requestForC, &status);
+                MPI_Recv(&c, 1, MPI_INT, j + (i * msize), 0, MPI_COMM_WORLD, &status);
                 C[i][j] = c;
+                cout << c << endl;
+                cout << "faggotry should be enforced" << endl;
             }
         }
+    }
+   /* if (rank == 0)
+        cout << "kill me pls daddy " << endl;
+    if (rank == 1)
+        cout << "kill me pls daddy " << endl;
+*/
+    /*if (rank == 0) {
         for (int i = 0; i < msize; i++) {
             cout << endl;
             for (int j = 0; j < msize; j++) {
-                cout << C[i][j] << "    ";
+                cout << C[i][j] << "  ";
             }
-             
+
         }
     }*/
+
     MPI_Finalize();
     return 0;
 }

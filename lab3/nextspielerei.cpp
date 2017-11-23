@@ -80,6 +80,7 @@ int main(int argc, char** argv) {
             }
         }
     }
+    //Bis hier hin kein Deadlock
     //Speicher von Array A und B freigeben um mehr freien speicher zu haben;
 
     // JEDER PROZESS HAT SEINEN EIGEN VALUE IN C
@@ -102,7 +103,6 @@ int main(int argc, char** argv) {
             if (rank == 0)
                 cout << "I've messed up badly if I reached this fucking point" << endl;
         }
-
         if (!notEvenOnce) {
             if (rank == 0)
                 cout << "In the end I should be here: " << endl;
@@ -118,16 +118,16 @@ int main(int argc, char** argv) {
         c += a*b;
     }
 
+    cout << endl;
+    
+    cout << "Rank: " << rank << " reporting in" << endl;   
     //Hängt sich gerade auf weil 0 mit sich selber redet dieser pisser!!!!!!!!
     if (rank == 0)
         cout << "look at me I can't even not deadlock for fucking once " << endl;
     //MPI_Wait(&requestForC, &statusForC);
     /*MPI_Isend(&c, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &re
      * questForC);
-     */
-    cout << endl;
-    
-    cout << "Rank: " << rank << " reporting in" << endl;    
+     */ 
     MPI_Isend(&c, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &requestForC);
     MPI_Wait(&requestForC, &status);
     

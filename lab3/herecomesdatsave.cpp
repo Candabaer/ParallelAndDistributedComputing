@@ -43,8 +43,8 @@ int main(int argc, char** argv) {
     MPI_Comm_rank(rowCom, &row_rank);
     MPI_Comm_size(rowCom, &row_size);
 
-    MPI_Comm_rank(colCom, &col_rank);
-    MPI_Comm_size(colCom, &col_size);
+    MPI_Comm_rank(rowCom, &col_rank);
+    MPI_Comm_size(rowCom, &col_size);
 
 
     MPI_Request requestForA, requestForB, requestForC;
@@ -85,52 +85,52 @@ int main(int argc, char** argv) {
     //Speicher von Array A und B freigeben um mehr freien speicher zu haben;
 
     // JEDER PROZESS HAT SEINEN EIGEN VALUE IN C
-	
-int a,b;
-	if(rank!=0){
+    bool notEvenOnce = true;
+    for (int i = 0; i < msize; i++) {
+        int a, b;
+
+        if (notEvenOnce) {
+            notEvenOnce = false;
+		if(rank!=0){
             	MPI_Recv(&a, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
 		//cout << "Rank " << rank << "about to receive a" << endl;
             	MPI_Recv(&b, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
                 //cout << "Rank " << rank << "about to receive b" << endl;
-	}
+		}
+	
+	} else {
+            MPI_Recv(&a, 1, MPI_INT, MPI_ANY_SOURCE, 0, rowCom, &statusForA);
+            //cout << "Rank " << rank << "about to rec a" << endl;
+		//cout << "Rank " << rank << "about to rec b" << endl;
 
-    for (int i = 0; i < msize-1; i++) {
-        
+            MPI_Recv(&b, 1, MPI_INT, MPI_ANY_SOURCE, 0, colCom, &statusForB);
+            //cout << "Rank " << rank << "about to recv b" << endl;
+        }
+
+	int row_Dest, col_Dest;
+	row_Dest = (row_rank+1)%msize;
+	col_Dest = (col_rank+1)%msize;
+        MPI_Send(&b, 1, MPI_INT, col_Dest, 0, colCom);
+	cout << "COL_Rank " << col_rank << "about to send b to" << col_Dest  << endl;
+
+
+        MPI_Send(&a, 1, MPI_INT, row_Dest, 0, rowCom);
+	cout << "ROW_Rank " << row_rank << "about to send a to" << row_Dest  << endl;
+
 	if(rank == 0){
 	c += e*d;
 	} else {
 	c += a*b;
 	}
-	int row_Dest, col_Dest;
-	row_Dest = (row_rank+1)%msize;
-	col_Dest = (col_rank+1)%msize;
+	//if(rank == 0)
+	//cout << "Das ist das C von der 0 " << c << endl; 
+    }
 
-	int a2,b2;
-	
-	a2 = a;
-	b2 = b;
-	
-	MPI_Sendrecv(&a, 1, MPI_INT, row_Dest, 0, &a2, 1, MPI_INT, MPI_ANY_SOURCE, 0, rowCom, &statusForA);
-	MPI_Sendrecv(&b, 1, MPI_INT, col_Dest, 0, &b2, 1, MPI_INT, MPI_ANY_SOURCE, 0, colCom, &statusForB);
-
-	a = a2;
-	b = b2;
-	/*MPI_Send(&a, 1, MPI_INT, row_Dest, 0, rowCom);
-	//cout << "ROW_Rank " << row_rank << "about to send a to" << row_Dest  << endl;
-        MPI_Send(&b, 1, MPI_INT, col_Dest, 0, colCom);
-	//cout << "COL_Rank " << col_rank << "about to send b to" << col_Dest  << endl;
-        
-
-        MPI_Recv(&a, 1, MPI_INT, MPI_ANY_SOURCE, 0, rowCom, &statusForA);
-        cout << "ROW " <<row_rank << "about to rec a" << endl;
-        MPI_Recv(&b, 1, MPI_INT, MPI_ANY_SOURCE, 0, colCom, &statusForB);
-	cout << "COL " <<col_rank << "about to rec b" << endl;
-   */ }
-
+    cout << endl;
     
  //   cout << "Rank: " << rank << " reporting in" << endl;   
     //Hängt sich gerade auf weil 0 mit sich selber redet dieser pisser!!!!!!!!
-    //if (rank == 0)
+    if (rank == 0)
         cout << "look at me I can't even not deadlock for once " << endl;
     //MPI_Wait(&requestForC, &statusForC);
     /*MPI_Isend(&c, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &re

@@ -62,47 +62,10 @@ int main(int argc, char** argv) {
     int d, e;
     e = 0;
     d = 0;
-  
-	    int offset = 0;
+
+    int offset = 0;
     //Verteilung alle werte aus beiden matrizen;
     if (rank == 0) {
-	// Geiler shit passiert
-
-	int tmp, a,b;
-	int TMP_A[msize][msize];
-	int TMP_B[msize][msize];
-
-	copy(&A[0][0], &A[0][0]+msize*msize, &TMP_A[0][0]);	
-	copy(&B[0][0], &B[0][0]+msize*msize, &TMP_B[0][0]);	
-
-
-	cout << "shifted matrix" << endl;
-	for (int i = 0; i < msize; i++){
-		for (int j = 0; j < msize; j++){
-	        	
-			int n = (j-i) % msize;
-        		n = (msize + (n % msize)) % msize;
-			int m = (i-j) % msize;
-        		m = (msize + (m % msize)) % msize;
-
-
-//			int n = ((j-i)+msize)%msize;
-		 	A[i] [n] = TMP_A[i][j]; 
-		//	cout << (j+i)%msize << endl; 
-			B[m] [j] = TMP_B[i][j]; 
-		//	cout << A[i][(j+i)%msize] << "  ";
-		 }
-		cout << endl;
-	}
-	for (int i = 0; i < msize; i++){
-		for (int j = 0; j < msize; j++){
-			cout << B[i][j] << "  ";
-		}
-		cout << endl;
-	}
-	
-
-
         for (int i = 0; i < msize; i++) {
             for (int j = 0; j < msize; j++) {
                 int a, b;
@@ -159,9 +122,9 @@ int main(int argc, char** argv) {
 
 
     //First time shifting damit alles seine richtigkeit hat
-   /* bool beGentleSenpai = true;
+    bool beGentleSenpai = true;
 
-    if (beGentleSenpai) {
+    /*if (beGentleSenpai) {
         int row_Dest, col_Dest;
         //(n + (i % n)) % n
         row_Dest = (row_rank) % msize;
@@ -174,7 +137,7 @@ int main(int argc, char** argv) {
         b2 = b;
         int offset_i = 0;
         int offset_j = 0;
-        if(0 == rank % msize){
+        if(rank % msize){
             offset_i = rank / msize;
         }
         MPI_Sendrecv(&offset_i, 1, MPI_INT, row_Dest, 0, &offset_i_, 1, MPI_INT, MPI_ANY_SOURCE, 0, rowCom, &statusForA);
@@ -206,7 +169,7 @@ int main(int argc, char** argv) {
         row_Dest = (row_rank + 1) % msize;
         row_Dest = (msize + (row_Dest % msize)) % msize;
 
-        col_Dest = (col_rank +  1) % msize;
+        col_Dest = (col_rank + 1) % msize;
         col_Dest = (msize + (col_Dest % msize)) % msize;
 
         //cout << "Row_Rank: " << row_Dest << endl;
@@ -267,22 +230,62 @@ int main(int argc, char** argv) {
                 if (destination != 0)
                     MPI_Recv(&c, 1, MPI_INT, destination, 0, MPI_COMM_WORLD, &status);
 
-                //C[i][j] = c;
+                C[i][j] = c;
 
-               // cout << "C[" << i << "]["<< j << "] = " << c << endl;
+                cout << "C[" << i << "]["<< j << "] = " << c << endl;
             }
         }
-	for (int i = 0; i < msize; i++){
-		for (int j = 0; j < msize; j++){
-			cout << C[i][j] << "  ";
-		}
-	cout << endl;
-    	}
-}
+
+        //cout << "c: " << C[2][1] << endl;
+    }
+    /* if (rank == 0)
+         cout << "kill me pls daddy " << endl;
+     if (rank == 1)
+         cout << "kill me pls daddy " << endl;
+     */
+    /*if (rank == 0) {
+        for (int i = 0; i < msize; i++) {
+            cout << endl;
+            for (int j = 0; j < msize; j++) {
+                cout << C[i][j] << "  ";
+            }
+
+        }
+    }*/
+
     MPI_Finalize();
     return 0;
 }
 
 
 
+/**
+    
+if (MPI_SUCCESS != MPI_Get_processor_name(name, &length)) {
+    strcpy(name, "unknown");
+}
+int j=0;
+int y = 3;
+    
+for (int i = 0; i < np; i++){
+    for (int j = 0; j < np; j++){
+        
+        if(rank == 0){
+            MPI_Send(&A[i], 1, MPI_INT, rank+1, 0, MPI_COMM_WORLD);
+            MPI_Send(&y, 1, MPI_INT, rank+1, 0, MPI_COMM_WORLD);
+        }
 
+
+        else if(rank == 1){
+            MPI_Recv(&j, 1, MPI_INT, rank-1, 0, MPI_COMM_WORLD,
+                 MPI_STATUS_IGNORE);
+            MPI_Recv(&y, 1, MPI_INT, rank-1, 0, MPI_COMM_WORLD,
+                 MPI_STATUS_IGNORE);
+            int x = j;
+            int z = y;
+
+            cout  << "jadajada: " << x+z << endl;
+        }
+    }
+}
+ */

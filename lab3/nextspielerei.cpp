@@ -64,6 +64,25 @@ int main(int argc, char** argv) {
     d = 0;
 
     int offset = 0;
+	
+	int tmp;
+	int TMP_A[msize][msize];
+	int TMP_B[msize][msize];
+	
+	copy(&A[0][0], &A[0][0]+msize*msize, &TMP_A[0][0]);
+	copy(&B[0][0], &B[0][0]+msize*msize, &TMP_B[0][0]);
+
+	for (int i = 0; i<msize; i++){
+	for (int j = 0; j<msize; j++){
+		int n = (j-i)%msize;
+		n = (msize + (n%msize)) % msize;
+		int m = (i-j)%msize;
+		m = (msize + (m%msize)) % msize;
+		A[i][n] = TMP_A[i][j];
+		B[m][j] = TMP_B[i][j];
+		}
+	}
+
     //Verteilung alle werte aus beiden matrizen;
     if (rank == 0) {
         for (int i = 0; i < msize; i++) {
@@ -105,7 +124,6 @@ int main(int argc, char** argv) {
      */
 
     int a, b;
-
     int a2, b2;
     a2 = 0;
     b2 = 0;
@@ -161,15 +179,15 @@ int main(int argc, char** argv) {
         //    cout << "E = " << e << " D = " << d << endl; 
 
         c += a*b;
-        if (rank == closeToRandomVariable)
-            cout << "I multiplied a*b=c " << a << "*" << b << "=" << c << endl;
-
+        if (rank == closeToRandomVariable){
+            //cout << "I multiplied a*b=c " << a << "*" << b << "=" << c << endl;
+	}
         int row_Dest, col_Dest;
         //(n + (i % n)) % n
-        row_Dest = (row_rank + 1) % msize;
+        row_Dest = (row_rank - 1) % msize;
         row_Dest = (msize + (row_Dest % msize)) % msize;
 
-        col_Dest = (col_rank + 1) % msize;
+        col_Dest = (col_rank - 1) % msize;
         col_Dest = (msize + (col_Dest % msize)) % msize;
 
         //cout << "Row_Rank: " << row_Dest << endl;
@@ -232,8 +250,10 @@ int main(int argc, char** argv) {
 
                 C[i][j] = c;
 
-                cout << "C[" << i << "]["<< j << "] = " << c << endl;
+         //cout << "C[" << i << "]["<< j << "] = " << c << endl;
+		cout << C[i][j] << " "; 
             }
+	cout << endl;
         }
 
         //cout << "c: " << C[2][1] << endl;

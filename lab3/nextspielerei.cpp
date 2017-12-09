@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
     char name[MPI_MAX_PROCESSOR_NAME + 1];
     const int msize = 4;
 
-    int closeToRandomVariable = 6;
+    int closeToRandomVariable = 1;
 
     int A[msize][msize] = {
         {1, 1, 2, 4},
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
         //cout << "Rank " << rank << "about to receive b which = " << b << endl;
     }
 
-	if (rank == 1) {
+	if (rank == closeToRandomVariable) {
 		cout << "MAtrix A shifted: " << endl;
 		for (int i = 0; i < msize; i++) {
 			for (int j = 0; j < msize; j++) {

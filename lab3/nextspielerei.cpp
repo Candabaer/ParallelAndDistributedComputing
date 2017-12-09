@@ -101,9 +101,9 @@ int main(int argc, char** argv) {
     b2 = 0;
     if (rank != 0) {
         MPI_Recv(&a, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
-        cout << "Rank " << rank << "about to receive a whpich = " << a << endl;
+       // cout << "Rank " << rank << "about to receive a whpich = " << a << endl;
         MPI_Recv(&b, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
-        cout << "Rank " << rank << "about to receive b which = " << b << endl;
+       // cout << "Rank " << rank << "about to receive b which = " << b << endl;
     }
 
 	if (rank == closeToRandomVariable) {

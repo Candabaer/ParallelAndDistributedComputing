@@ -141,8 +141,12 @@ int main(int argc, char** argv) {
         row_Dest = (row_rank - 1) % msize;
         row_Dest = (msize + (row_Dest % msize)) % msize;
 
+
         col_Dest = (col_rank - 1) % msize;
         col_Dest = (msize + (col_Dest % msize)) % msize;
+		if (rank == closeToRandomVariable) {
+			cout << "i output to ROW: " << rowDest << " And COL: " << colDest <<  endl;
+		}
 
         a2 = a;
         b2 = b;

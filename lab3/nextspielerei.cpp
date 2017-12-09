@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < msize; i++) {
         c += a*b;
         if (rank == closeToRandomVariable){
-            //cout << "I multiplied a*b=c " << a << "*" << b << "=" << c << endl;
+            cout << "I multiplied a*b=c " << a << "*" << b << "=" << c << endl;
 		}
         int row_Dest, col_Dest;
         //(n + (i % n)) % n
@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
         b = b2;
 
 		if (rank == closeToRandomVariable) {
-			cout << "Outputting a : " << a << "   B:  " << b << endl;
+			cout << "I Got A : " << a << "   B:  " << b << endl;
 		}
     }
 

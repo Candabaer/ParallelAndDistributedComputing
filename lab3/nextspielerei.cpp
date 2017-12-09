@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
 			cout << endl;
 		}
 	}
-
+	 
 
     if (rank == 0) {
         a = e;
@@ -151,13 +151,13 @@ int main(int argc, char** argv) {
         a2 = a;
         b2 = b;
 
-        MPI_Sendrecv(&a, 1, MPI_INT, row_Dest, 0, &a2, 1, MPI_INT, MPI_ANY_SOURCE, 0, rowCom, &statusForA);
-        MPI_Sendrecv(&b, 1, MPI_INT, col_Dest, 0, &b2, 1, MPI_INT, MPI_ANY_SOURCE, 0, colCom, &statusForB);
+        MPI_Sendrecv(&a, 1, MPI_INT, row_Dest, 0, &a2, 1, MPI_INT, MPI_ANY_SOURCE, 0, (row_Rank + 1 + msize) % msize, &statusForA);
+        MPI_Sendrecv(&b, 1, MPI_INT, col_Dest, 0, &b2, 1, MPI_INT, MPI_ANY_SOURCE, 0, (col_Rank + 1 + msize) % msize, &statusForB);
         a = a2;
         b = b2;
 
 		if (rank == closeToRandomVariable) {
-			cout << "I Got A : " << a << "   B:  " << b << endl;
+			cout << "I Got A : " << a <<"from: " << (row_Rank + 1 + msize) % msize << " and B:  " << b << " from: "<< (row_Rank + 1 + msize) % msize << endl;
 		}
     }
 

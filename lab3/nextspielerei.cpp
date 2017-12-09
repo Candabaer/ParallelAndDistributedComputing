@@ -72,23 +72,24 @@ int main(int argc, char** argv) {
 			B[m][j] = TMP_B[i][j];
 		}
 	}
-	cout << "MAtrix A shifted: " << endl;
-	for (int i = 0; i < msize; i++) {
-		for (int j = 0; j < msize; j++) {
-			cout << A[i][j] << " ";
+	if (rank == 0) {
+		cout << "MAtrix A shifted: " << endl;
+		for (int i = 0; i < msize; i++) {
+			for (int j = 0; j < msize; j++) {
+				cout << A[i][j] << " ";
+			}
+			cout << endl;
 		}
-		cout << endl;
-	}
 
-	cout << endl;
-	cout << "Matrix B shifted: " << endl;
-	for (int i = 0; i < msize; i++) {
-		for (int j = 0; j < msize; j++) {
-			cout << B[i][j] << " ";
+		cout << endl;
+		cout << "Matrix B shifted: " << endl;
+		for (int i = 0; i < msize; i++) {
+			for (int j = 0; j < msize; j++) {
+				cout << B[i][j] << " ";
+			}
+			cout << endl;
 		}
-		cout << endl;
 	}
-
 
     if (rank == 0) {
         for (int i = 0; i < msize; i++) {

@@ -98,10 +98,7 @@ int main(int argc, char** argv) {
                 int a, b;
                 a = A[i][j];
                 b = B[i][j];
-                // cout << "I am sending: " << a << " and 
-                //   << b << " to " << j + (i * msize) << endl;
                 int destination = j + (i * msize);
-                //int destination_j = ((j+i) + (j * msize)) % (msize * (j+1));
                 if (0 == destination) {
                     d = a;
                     e = b;
@@ -125,8 +122,8 @@ int main(int argc, char** argv) {
     }	
 
     if (rank == 0) {
-        a = e;
-        b = d;
+        a = d;
+        b = e;
     }
 
 	cout << rank << " ,a:	" << a << ", b:	" << b << endl;

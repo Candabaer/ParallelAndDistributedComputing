@@ -146,6 +146,7 @@ int main(int argc, char** argv) {
         col_Dest = (col_Dest + msize) % msize;
 		if (rank == closeToRandomVariable) {
 			cout << "i output to ROW: " << row_Dest << " And COL: " << col_Dest <<  endl;
+			cout << "Recieving from ROW:  " << (row_rank + 1) % msize << " And COL: " << (col_rank + 1) % msize << endl;
 		}
 
         a2 = a;

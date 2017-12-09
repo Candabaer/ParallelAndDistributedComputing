@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
                 b = B[i][j];
                 // cout << "I am sending: " << a << " and 
                 //   << b << " to " << j + (i * msize) << endl;
-                int destination = j + (i * msize);
+				int destination = i + j;
                 //int destination_j = ((j+i) + (j * msize)) % (msize * (j+1));
                 if (0 == destination) {
                     d = a;
@@ -159,7 +159,8 @@ int main(int argc, char** argv) {
     if (rank == 0) {
         for (int i = 0; i < msize; i++) {
             for (int j = 0; j < msize; j++) {
-                int destination = j + (i * msize);
+               // before:  int destination = j + (i * msize);
+				int destination = i + j;
 				if (destination != 0) {
 					MPI_Recv(&c, 1, MPI_INT, destination, 0, MPI_COMM_WORLD, &status);
 				}

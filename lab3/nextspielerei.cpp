@@ -72,24 +72,7 @@ int main(int argc, char** argv) {
 			B[m][j] = TMP_B[i][j];
 		}
 	}
-	if (rank == 0) {
-		cout << "MAtrix A shifted: " << endl;
-		for (int i = 0; i < msize; i++) {
-			for (int j = 0; j < msize; j++) {
-				cout << A[i][j] << " ";
-			}
-			cout << endl;
-		}
-
-		cout << endl;
-		cout << "Matrix B shifted: " << endl;
-		for (int i = 0; i < msize; i++) {
-			for (int j = 0; j < msize; j++) {
-				cout << B[i][j] << " ";
-			}
-			cout << endl;
-		}
-	}
+	
 
     if (rank == 0) {
         for (int i = 0; i < msize; i++) {
@@ -99,7 +82,7 @@ int main(int argc, char** argv) {
                 b = B[i][j];
                 // cout << "I am sending: " << a << " and 
                 //   << b << " to " << j + (i * msize) << endl;
-				int destination = i + j;
+                int destination = j + (i * msize);
                 //int destination_j = ((j+i) + (j * msize)) % (msize * (j+1));
                 if (0 == destination) {
                     d = a;
@@ -122,6 +105,27 @@ int main(int argc, char** argv) {
         MPI_Recv(&b, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
         //cout << "Rank " << rank << "about to receive b which = " << b << endl;
     }
+
+	if (rank == 1) {
+		cout << "MAtrix A shifted: " << endl;
+		for (int i = 0; i < msize; i++) {
+			for (int j = 0; j < msize; j++) {
+				cout << A[i][j] << " ";
+			}
+			cout << endl;
+		}
+
+		cout << endl;
+		cout << "Matrix B shifted: " << endl;
+		for (int i = 0; i < msize; i++) {
+			for (int j = 0; j < msize; j++) {
+				cout << B[i][j] << " ";
+			}
+			cout << endl;
+		}
+	}
+
+
     if (rank == 0) {
         a = e;
         b = d;
@@ -159,8 +163,7 @@ int main(int argc, char** argv) {
     if (rank == 0) {
         for (int i = 0; i < msize; i++) {
             for (int j = 0; j < msize; j++) {
-               // before:  int destination = j + (i * msize);
-				int destination = i + j;
+                int destination = j + (i * msize);
 				if (destination != 0) {
 					MPI_Recv(&c, 1, MPI_INT, destination, 0, MPI_COMM_WORLD, &status);
 				}

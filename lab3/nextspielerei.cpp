@@ -73,6 +73,24 @@ int main(int argc, char** argv) {
 		}
 	}
 	
+	if (rank == closeToRandomVariable) {
+		cout << "Matrix A shifted: " << endl;
+		for (int i = 0; i < msize; i++) {
+			for (int j = 0; j < msize; j++) {
+				cout << A[i][j] << " ";
+			}
+			cout << endl;
+		}
+
+		cout << endl;
+		cout << "Matrix B shifted: " << endl;
+		for (int i = 0; i < msize; i++) {
+			for (int j = 0; j < msize; j++) {
+				cout << B[i][j] << " ";
+			}
+			cout << endl;
+		}
+	}
 
     if (rank == 0) {
         for (int i = 0; i < msize; i++) {
@@ -104,38 +122,22 @@ int main(int argc, char** argv) {
        // cout << "Rank " << rank << "about to receive a whpich = " << a << endl;
         MPI_Recv(&b, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
        // cout << "Rank " << rank << "about to receive b which = " << b << endl;
-    }
-
-	if (rank == closeToRandomVariable) {
-		cout << "MAtrix A shifted: " << endl;
-		for (int i = 0; i < msize; i++) {
-			for (int j = 0; j < msize; j++) {
-				cout << A[i][j] << " ";
-			}
-			cout << endl;
-		}
-
-		cout << endl;
-		cout << "Matrix B shifted: " << endl;
-		for (int i = 0; i < msize; i++) {
-			for (int j = 0; j < msize; j++) {
-				cout << B[i][j] << " ";
-			}
-			cout << endl;
-		}
-	}
-	 
+    }	
 
     if (rank == 0) {
         a = e;
         b = d;
     }
 
+	cout << rank << " ,a:	" << a << ", b:	" << b << endl;
+
     for (int i = 0; i < msize; i++) {
         c += a*b;
         if (rank == closeToRandomVariable){
-            cout << "I multiplied a*b=c " << a << "*" << b << "=" << c << endl;
+            // cout << "I multiplied a*b=c " << a << "*" << b << "=" << c <<" ,my A is: " << endl;
+
 		}
+
         int row_Dest, col_Dest;
         //(n + (i % n)) % n
         row_Dest = (row_rank - 1);
@@ -153,9 +155,9 @@ int main(int argc, char** argv) {
         a = a2;
         b = b2;
 
-		if (rank == closeToRandomVariable) {
-			cout << "I Got A : " << a << "from: " << (row_rank + 1) % msize << " and B:  " << b << " from: " << (col_rank + 1) % msize << endl;
-		}
+		//if (rank == closeToRandomVariable) {
+		//	cout << "I Got A: " << a << " from: " << (row_rank + 1) % msize << " and B:  " << b << " from: " << (col_rank + 1) % msize << endl;
+		//}
     }
 
 	if (rank != 0) {

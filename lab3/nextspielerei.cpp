@@ -152,8 +152,8 @@ int main(int argc, char** argv) {
         a2 = a;
         b2 = b;
 
-        MPI_Sendrecv(&a, 1, MPI_INT, row_Dest, 0, &a2, 1, MPI_INT, (row_rank + 1) % msize, 0, rowCom, &statusForA);
-        MPI_Sendrecv(&b, 1, MPI_INT, col_Dest, 0, &b2, 1, MPI_INT, (col_rank + 1) % msize, 0, colCom, &statusForB);
+        MPI_Sendrecv(&a, 1, MPI_INT, row_Dest, 0, &a2, 1, MPI_INT, MPI_ANY_SOURCE, 0, rowCom, &statusForA);
+        MPI_Sendrecv(&b, 1, MPI_INT, col_Dest, 0, &b2, 1, MPI_INT, MPI_ANY_SOURCE, 0, colCom, &statusForB);
         a = a2;
         b = b2;
 

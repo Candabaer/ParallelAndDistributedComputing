@@ -138,12 +138,12 @@ int main(int argc, char** argv) {
 		}
         int row_Dest, col_Dest;
         //(n + (i % n)) % n
-        row_Dest = (row_rank - 1) % msize;
-        row_Dest = (msize + (row_Dest % msize)) % msize;
+        row_Dest = (row_rank - 1);
+        row_Dest = (row_Dest + msize) % msize;
 
 
-        col_Dest = (col_rank - 1) % msize;
-        col_Dest = (msize + (col_Dest % msize)) % msize;
+        col_Dest = (col_rank - 1);
+        col_Dest = (col_Dest + msize) % msize;
 		if (rank == closeToRandomVariable) {
 			cout << "i output to ROW: " << row_Dest << " And COL: " << col_Dest <<  endl;
 		}
@@ -151,8 +151,8 @@ int main(int argc, char** argv) {
         a2 = a;
         b2 = b;
 
-        MPI_Sendrecv(&a, 1, MPI_INT, row_Dest, 0, &a2, 1, MPI_INT, row_Dest, 0, rowCom, &statusForA);
-        MPI_Sendrecv(&b, 1, MPI_INT, col_Dest, 0, &b2, 1, MPI_INT, col_Dest, 0, colCom, &statusForB);
+        MPI_Sendrecv(&a, 1, MPI_INT, row_Dest, 0, &a2, 1, MPI_INT, MPI_ANY_SOURCE, 0, rowCom, &statusForA);
+        MPI_Sendrecv(&b, 1, MPI_INT, col_Dest, 0, &b2, 1, MPI_INT, MPI_ANY_SOURCE, 0, colCom, &statusForB);
         a = a2;
         b = b2;
 

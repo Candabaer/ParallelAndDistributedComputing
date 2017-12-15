@@ -3,31 +3,73 @@
 #include <complex>
 #include "CMatrix.h"
 #include "mpi.h"
+#include <vector>
 
 using namespace std;
 
+MPI_Status status;
+int rank, np, peer;
+int length;
+char name[MPI_MAX_PROCESSOR_NAME + 1];
+const int msize = 8;
+
+int closeToRandomVariable = 1;
+
+int A[msize][msize] = {
+	{ 1, 1, 2, 4, 5, 6, 7, 8 },
+	{ 3, 4, 5, 6, 5, 6, 7, 8 },
+	{ 6, 7, 8, 9, 5, 6, 7, 8 },
+	{ 0, 1, 2, 3, 4, 5, 6, 7 },
+	{ 1, 1, 2, 4, 5, 6, 7, 8 },
+	{ 3, 4, 5, 6, 5, 6, 7, 8 },
+	{ 6, 7, 8, 9, 5, 6, 7, 8 },
+	{ 0, 1, 2, 3, 4, 5, 6, 7 }
+};
+int B[msize][msize] = {
+	{ 8, 7, 6, 5, 4, 3, 2, 1 },
+	{ 5, 2, 3, 2, 1, 9, 8, 7 },
+	{ 2, 1, 4, 1, 5, 5, 5, 5 },
+	{ 0, 1, 2, 6, 5, 5, 5, 5 },
+	{ 8, 7, 6, 5, 4, 3, 2, 1 },
+	{ 5, 2, 3, 2, 1, 9, 8, 7 },
+	{ 2, 1, 4, 1, 5, 5, 5, 5 },
+	{ 0, 1, 2, 6, 5, 5, 5, 5 }
+};
+int C[msize][msize];
+
+vector<int[][]> blocksA;
+vector<int[][]> blocksB;
+
+
+void writeMatrix() {
+
+}
+
+void makeBlocks() {
+	int blockSize = msize/sqrt(np); // 2x2
+	int aB = msize / blockSize;	// 4 blocks
+	for (int br = 0; br < aB; br++) {
+		for (int bc = 0; bc < aB; bc++) {
+			int blockA[blockSize][blockSize];
+			int blockB[blockSize][blockSize];
+			copy(&A[br*blockSize][bc*blockSize], &A[br*blockSize][bc*blockSize] + blockSize*blockSize, &blockA[0][0]);
+			copy(&B[br*blockSize][bc*blockSize], &B[br*blockSize][bc*blockSize] + blockSize*blockSize, &blockB[0][0]);
+			blocksA.push_back(blockA);
+			blocksB.push_back(blockB);
+		}
+	}
+}
+
+
 int main(int argc, char** argv) {
-    MPI_Status status;
-    int rank, np, peer;
-    int length;
-    char name[MPI_MAX_PROCESSOR_NAME + 1];
-    const int msize = 4;
+	makeBlocks();
+	cout << " ABlocks: " << blocksA.size() << endl;
+	cout << " BBlocks: " << blocksB.size() << endl;
 
-    int closeToRandomVariable = 1;
 
-    int A[msize][msize] = {
-        {1, 1, 2, 4},
-        {3, 4, 5, 6},
-        {6, 7, 8, 9},
-        {0, 1, 2, 3}
-    };
-    int B[msize][msize] = {
-        {8, 7, 6, 5},
-        {5, 2, 3, 2},
-        {2, 1, 4, 1},
-        {0, 1, 2, 6}
-    };
-    int C[msize][msize];
+
+
+	/*
 
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -126,7 +168,7 @@ int main(int argc, char** argv) {
         b = e;
     }
 
-	cout << rank << " ,a:	" << a << ", b:	" << b << endl;
+	cerr << rank << " ,a:	" << a << ", b:	" << b << endl;
 
     for (int i = 0; i < msize; i++) {
         c += a*b;
@@ -176,5 +218,6 @@ int main(int argc, char** argv) {
     }
 
     MPI_Finalize();
+	*/
     return 0;
 }

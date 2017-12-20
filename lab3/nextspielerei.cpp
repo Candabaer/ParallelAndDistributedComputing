@@ -4,6 +4,7 @@
 #include "CMatrix.h"
 #include "mpi.h"
 #include <vector>
+#include <cstdlib>
 
 using namespace std;
 
@@ -70,16 +71,16 @@ void freeMem(int** arr, int size) {
 }
 
 void initialShift() {
-	int TMP_A[blockMSize][blockMSize];
-	int TMP_B[blockMSize][blockMSize];
-	copy(&A[0][0], &A[0][0] + blockMSize*blockMSize, &TMP_A[0][0]);
-	copy(&B[0][0], &B[0][0] + blockMSize*blockMSize, &TMP_B[0][0]);
-	for (int i = 0; i<blockMSize; i++) {
-		for (int j = 0; j<blockMSize; j++) {
-			int n = (j - i) % blockMSize;
-			n = (blockMSize + (n%blockMSize)) % blockMSize;
-			int m = (i - j) % blockMSize;
-			m = (blockMSize + (m%blockMSize)) % blockMSize;
+	int TMP_A[totalMSize][totalMSize];
+	int TMP_B[totalMSize][totalMSize];
+	copy(&A[0][0], &A[0][0] + totalMSize*totalMSize, &TMP_A[0][0]);
+	copy(&B[0][0], &B[0][0] + totalMSize*totalMSize, &TMP_B[0][0]);
+	for (int i = 0; i< totalMSize; i++) {
+		for (int j = 0; j< totalMSize; j++) {
+			int n = (j - i) % totalMSize;
+			n = (totalMSize + (n% totalMSize)) % totalMSize;
+			int m = (i - j) % totalMSize;
+			m = (totalMSize + (m%totalMSize)) % totalMSize;
 			A[i][n] = TMP_A[i][j];
 			B[m][j] = TMP_B[i][j];
 		}
@@ -123,7 +124,7 @@ int main(int argc, char** argv) {
 	MPI_Comm rowCom, colCom;
 	MPI_Comm_split(MPI_COMM_WORLD, rank / aB, rank, &rowCom);
 	MPI_Comm_split(MPI_COMM_WORLD, rank % aB, rank, &colCom);
-	//	int row_rank, row_size, col_rank, col_size;
+	int row_rank, row_size, col_rank, col_size;
 	MPI_Comm_rank(rowCom, &row_rank);
 	MPI_Comm_size(rowCom, &row_size);
 	MPI_Comm_rank(colCom, &col_rank);
@@ -166,9 +167,8 @@ int main(int argc, char** argv) {
 		BlockB = saveB;
 	}
 //-----------------------DO MPI WITH BLOCKS------------------------//
-	int** a2, int** b2;
-	a2 = alloc_2d_int(blockSize, blockSize);
-	b2 = alloc_2d_int(blockSize, blockSize);
+	int** a2 = alloc_2d_int(blockSize, blockSize);
+	int** b2 = alloc_2d_int(blockSize, blockSize);
 	if (rank != 0) {
 		MPI_Recv(&BlockA[0][0], blockSize*blockSize, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
 		// cout << "Rank " << rank << "about to receive a whpich = " << a << endl;
@@ -205,11 +205,11 @@ int main(int argc, char** argv) {
 				if (destination != 0) {
 					MPI_Recv(&BlockC[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD, &status);
 				}
-				blockIntoMat(BlockC, C, br*blockSize, bc*blockSize, blockSize, blockSize);
+				blockIntoMat(BlockC, C, i*blockSize, j*blockSize, blockSize, blockSize);
 			}
 		}
-		for (int r = 0; r < row; r++) {
-			for (int c = 0; c < col; c++) {
+		for (int r = 0; r < totalMSize; r++) {
+			for (int c = 0; c < totalMSize; c++) {
 				cout << C[r][c] << " ";
 			}
 			cout << endl;

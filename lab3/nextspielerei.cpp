@@ -142,6 +142,7 @@ int main(int argc, char** argv) {
 			BlockC[r][c] = 0;
 		}
 	}
+	cout << "After Init" << endl;
 //-------------------Send Blocks------------------------//
 	if (rank == 0) {
 		int** saveA = NULL; // = alloc_2d_int(blockSize, blockSize);
@@ -151,7 +152,7 @@ int main(int argc, char** argv) {
 				int destination = bc + (br * aB);
 				BlockA = blockOutOfMat(A, br*blockSize, bc*blockSize, blockSize, blockSize);
 				BlockB = blockOutOfMat(B, br*blockSize, bc*blockSize, blockSize, blockSize);
-				// printMatrix(BlockA, blockSize, blockSize, "blocks");
+				printMatrix(BlockA, blockSize, blockSize, "blocks");
 				if (0 == destination) {
 					saveA = BlockA;
 					saveB = BlockB;

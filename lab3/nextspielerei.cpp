@@ -196,9 +196,9 @@ int main(int argc, char** argv) {
 		int row_Dest, col_Dest;
 		//(n + (i % n)) % n
 		row_Dest = (row_rank - 1);
-		row_Dest = (row_Dest + sqrt(aB)) % (int)sqrt(aB);
+		row_Dest = (row_Dest + (int)sqrt(aB)) % (int)sqrt(aB);
 		col_Dest = (col_rank - 1);
-		col_Dest = (col_Dest + sqrt(aB)) % (int)sqrt(aB);
+		col_Dest = (col_Dest + (int)sqrt(aB)) % (int)sqrt(aB);
 		a2 = BlockA;
 		b2 = BlockB;
 		MPI_Sendrecv(&BlockA[0][0], blockSize*blockSize, MPI_INT, row_Dest, 0, &a2[0][0], blockSize*blockSize, MPI_INT, (row_rank + 1) % (int)sqrt(aB), 0, rowCom, &statusForA);

@@ -160,7 +160,7 @@ int main(int argc, char** argv) {
 		int** saveB = NULL; // = alloc_2d_int(blockSize, blockSize);
 		for (int br = 0; br < sqrt(aB); br++) {
 			for (int bc = 0; bc < sqrt(aB); bc++) {
-				int destination = bc + (br * aB);
+				int destination = bc + (br * sqrt(aB));
 				BlockA = blockOutOfMat(A, br*blockSize, bc*blockSize, blockSize, blockSize);
 				BlockB = blockOutOfMat(B, br*blockSize, bc*blockSize, blockSize, blockSize);
 				printMatrix(BlockA, blockSize, blockSize, "blocks");
@@ -196,13 +196,13 @@ int main(int argc, char** argv) {
 		int row_Dest, col_Dest;
 		//(n + (i % n)) % n
 		row_Dest = (row_rank - 1);
-		row_Dest = (row_Dest + blockSize) % blockSize;
+		row_Dest = (row_Dest + sqrt(aB)) % sqrt(aB);
 		col_Dest = (col_rank - 1);
-		col_Dest = (col_Dest + blockSize) % blockSize;
+		col_Dest = (col_Dest + sqrt(aB)) % sqrt(aB);
 		a2 = BlockA;
 		b2 = BlockB;
-		MPI_Sendrecv(&BlockA[0][0], blockSize*blockSize, MPI_INT, row_Dest, 0, &a2[0][0], blockSize*blockSize, MPI_INT, (row_rank + 1) % aB, 0, rowCom, &statusForA);
-		MPI_Sendrecv(&BlockB[0][0], blockSize*blockSize, MPI_INT, col_Dest, 0, &b2[0][0], blockSize*blockSize, MPI_INT, (col_rank + 1) % aB, 0, colCom, &statusForB);
+		MPI_Sendrecv(&BlockA[0][0], blockSize*blockSize, MPI_INT, row_Dest, 0, &a2[0][0], blockSize*blockSize, MPI_INT, (row_rank + 1) % sqrt(aB), 0, rowCom, &statusForA);
+		MPI_Sendrecv(&BlockB[0][0], blockSize*blockSize, MPI_INT, col_Dest, 0, &b2[0][0], blockSize*blockSize, MPI_INT, (col_rank + 1) % sqrt(aB), 0, colCom, &statusForB);
 		BlockA = a2;
 		BlockB = b2;
 	}
@@ -213,7 +213,7 @@ int main(int argc, char** argv) {
 	if (rank == 0) {
 		for (int i = 0; i < sqrt(aB); i++) {
 			for (int j = 0; j < sqrt(aB); j++) {
-				int destination = j + (i * aB);
+				int destination = j + (i * sqrt(aB));
 				if (destination != 0) {
 					MPI_Recv(&BlockC[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD, &status);
 				}

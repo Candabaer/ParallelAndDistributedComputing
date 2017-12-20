@@ -201,8 +201,8 @@ int main(int argc, char** argv) {
 		col_Dest = (col_Dest + sqrt(aB)) % sqrt(aB);
 		a2 = BlockA;
 		b2 = BlockB;
-		MPI_Sendrecv(&BlockA[0][0], blockSize*blockSize, MPI_INT, row_Dest, 0, &a2[0][0], blockSize*blockSize, MPI_INT, (row_rank + 1) % sqrt(aB), 0, rowCom, &statusForA);
-		MPI_Sendrecv(&BlockB[0][0], blockSize*blockSize, MPI_INT, col_Dest, 0, &b2[0][0], blockSize*blockSize, MPI_INT, (col_rank + 1) % sqrt(aB), 0, colCom, &statusForB);
+		MPI_Sendrecv(&BlockA[0][0], blockSize*blockSize, MPI_INT, row_Dest, 0, &a2[0][0], blockSize*blockSize, MPI_INT, (row_rank + 1) % (int)sqrt(aB), 0, rowCom, &statusForA);
+		MPI_Sendrecv(&BlockB[0][0], blockSize*blockSize, MPI_INT, col_Dest, 0, &b2[0][0], blockSize*blockSize, MPI_INT, (col_rank + 1) % (int)sqrt(aB), 0, colCom, &statusForB);
 		BlockA = a2;
 		BlockB = b2;
 	}

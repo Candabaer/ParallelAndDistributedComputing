@@ -12,7 +12,7 @@ int rank, np, peer;
 int length;
 char name[MPI_MAX_PROCESSOR_NAME + 1];
 const int totalMSize = 8;
-const int blockSize = totalMSize / sqrt(4);
+const int blockSize = totalMSize / sqrt(np);
 int closeToRandomVariable = 1;
 int aB = (totalMSize*totalMSize) / (blockSize*blockSize);
 
@@ -86,30 +86,6 @@ void initialShift() {
 	}
 }
 
-void sendBlocks() {
-	int** saveA, saveB;
-	saveA = alloc_2d_int(blockSize, blockSIze);
-	saveB = alloc_2d_int(blockSize, blockSIze);
-	for (int br = 0; br < sqrt(aB); br++) {
-		for (int bc = 0; bc < sqrt(aB); bc++) {
-			int destination = bc + (br * blockSize);
-			BlockA = blockOutOfMat(A, br*blockSize, bc*blockSize, blockSize, blockSize);
-			BlockA = blockOutOfMat(B, br*blockSize, bc*blockSize, blockSize, blockSize);
-			//printMatrix(MatrixToPP(matA, br*blockSize, bc*blockSize), blockSize, blockSize, "block0");
-			if (0 == destination) {
-				saveA = BlockA;
-				saveB = BlockB;
-			} else {
-				MPI_Send(&BlockA[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD);
-				MPI_Send(&BlockB[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD);
-				cout << "Test after sending blocks!" << endl;
-			}
-		}
-	}
-	BlockA = saveA;
-	BlockB = saveB;
-}
-
 void addMult(int** mA, int** mB, int size, int** res) {
 	for (int rRes = 0; rRes < size; rRes++) {
 		for (int r = 0; r < size; r++) {
@@ -138,8 +114,59 @@ void blockIntoMat(int** block, int res[][totalMSize], int sRow, int sCol, int dR
 	}
 }
 
-void doMPIWithBlocks() {
-	int** a2,int** b2;
+int main(int argc, char** argv) {
+//-----------------------Init Part------------------------//
+	initialShift();
+	MPI_Init(&argc, &argv);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &np);
+	MPI_Comm rowCom, colCom;
+	MPI_Comm_split(MPI_COMM_WORLD, rank / aB, rank, &rowCom);
+	MPI_Comm_split(MPI_COMM_WORLD, rank % aB, rank, &colCom);
+	//	int row_rank, row_size, col_rank, col_size;
+	MPI_Comm_rank(rowCom, &row_rank);
+	MPI_Comm_size(rowCom, &row_size);
+	MPI_Comm_rank(colCom, &col_rank);
+	MPI_Comm_size(colCom, &col_size);
+
+	MPI_Request requestForA, requestForB, requestForC;
+	MPI_Status statusForA, statusForB, statusForC;
+
+	BlockA = alloc_2d_int(blockSize, blockSize);
+	BlockB = alloc_2d_int(blockSize, blockSize);
+	BlockC = alloc_2d_int(blockSize, blockSize);
+	// init all C's with 0.
+	for (int r = 0; r < blockSize; r++) {
+		for (int c = 0; c < blockSize; c++) {
+			BlockC[r][c] = 0;
+		}
+	}
+//-------------------Send Blocks------------------------//
+	if (rank == 0) {
+		int** saveA = NULL; // = alloc_2d_int(blockSize, blockSize);
+		int** saveB = NULL; // = alloc_2d_int(blockSize, blockSize);
+		for (int br = 0; br < sqrt(aB); br++) {
+			for (int bc = 0; bc < sqrt(aB); bc++) {
+				int destination = bc + (br * aB);
+				BlockA = blockOutOfMat(A, br*blockSize, bc*blockSize, blockSize, blockSize);
+				BlockB = blockOutOfMat(B, br*blockSize, bc*blockSize, blockSize, blockSize);
+				// printMatrix(BlockA, blockSize, blockSize, "blocks");
+				if (0 == destination) {
+					saveA = BlockA;
+					saveB = BlockB;
+				}
+				else {
+					MPI_Send(&BlockA[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD);
+					MPI_Send(&BlockB[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD);
+					cout << "Test after sending blocks!" << endl;
+				}
+			}
+		}
+		BlockA = saveA;
+		BlockB = saveB;
+	}
+//-----------------------DO MPI WITH BLOCKS------------------------//
+	int** a2, int** b2;
 	a2 = alloc_2d_int(blockSize, blockSize);
 	b2 = alloc_2d_int(blockSize, blockSize);
 	if (rank != 0) {
@@ -169,68 +196,24 @@ void doMPIWithBlocks() {
 	}
 	if (rank != 0) {
 		MPI_Send(&BlockC[0][0], blockSize*blockSize, MPI_INT, 0, 0, MPI_COMM_WORLD);
-	}	
-}
-
-void recvBlocks() {
-	for (int i = 0; i < sqrt(aB); i++) {
-		for (int j = 0; j < sqrt(aB); j++) {
-			int destination = j + (i * aB);
-			if (destination != 0) {
-				MPI_Recv(&BlockC[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD, &status);
+	}
+//----------------------------Recv Blocks------------------------//
+	if (rank == 0) {
+		for (int i = 0; i < sqrt(aB); i++) {
+			for (int j = 0; j < sqrt(aB); j++) {
+				int destination = j + (i * aB);
+				if (destination != 0) {
+					MPI_Recv(&BlockC[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD, &status);
+				}
+				blockIntoMat(BlockC, C, br*blockSize, bc*blockSize, blockSize, blockSize);
 			}
-			blockIntoMat(BlockC,C,br*blockSize, bc*blockSize, blockSize, blockSize);
 		}
-	}
-	for (int r = 0; r < row; r++) {
-		for (int c = 0; c < col; c++) {
-			cout << C[r][c] << " ";
-		}
-		cout << endl;
-	}
-}
-
-void init() {
-	initialShift();
-	MPI_Init(&argc, &argv);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &np);
-	MPI_Comm rowCom, colCom;
-	MPI_Comm_split(MPI_COMM_WORLD, rank / blockMSize, rank, &rowCom);
-	MPI_Comm_split(MPI_COMM_WORLD, rank % blockMSize, rank, &colCom);
-	int row_rank, row_size, col_rank, col_size;
-	MPI_Comm_rank(rowCom, &row_rank);
-	MPI_Comm_size(rowCom, &row_size);
-
-	MPI_Comm_rank(colCom, &col_rank);
-	MPI_Comm_size(colCom, &col_size);
-
-	MPI_Request requestForA, requestForB, requestForC;
-	MPI_Status statusForA, statusForB, statusForC;
-
-	//int c = 0;
-	//int d, e;
-	//e = 0;
-	//d = 0;
-	BlockA = alloc_2d_int(blockSize,blockSize);
-	BlockB = alloc_2d_int(blockSize, blockSize);
-	BlockC = alloc_2d_int(blockSize, blockSize);
-	// init all C's with 0.
-	for (int r = 0; r < blockSize; r++) {
-		for (int c = 0; c < blockSize; c++) {
-			res[r][c] = 0;
-		}
-	}
-}
-
-int main(int argc, char** argv) {
-	init();
-	if (rank == 0) {
-		sendBlocks();
-	}
-	doMPIWithBlocks();
-	if (rank == 0) {
-		recvBlocks();
+		for (int r = 0; r < row; r++) {
+			for (int c = 0; c < col; c++) {
+				cout << C[r][c] << " ";
+			}
+			cout << endl;
+		}	
 	}
 	MPI_Finalize();	
     return 0;

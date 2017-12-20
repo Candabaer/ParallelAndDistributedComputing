@@ -14,7 +14,7 @@ int length;
 char name[MPI_MAX_PROCESSOR_NAME + 1];
 const int totalMSize = 8;
 int blockSize;
-int closeToRandomVariable = 0;
+int closeToRandomVariable = 1;
 int aB;
 
 int A[totalMSize][totalMSize] = {
@@ -191,7 +191,7 @@ int main(int argc, char** argv) {
 		addMult(BlockA, BlockB, blockSize, BlockC);
 		if (rank == closeToRandomVariable) {
 			cout << "I multiplied a*b=c " << endl;
-			printMatrix(BlockA,blockSize, blockSize,"BlockA");
+			printMatrix(BlockA, blockSize, blockSize,"BlockA");
 			printMatrix(BlockB, blockSize, blockSize, "BlockB");
 			printMatrix(BlockC, blockSize, blockSize, "BlockC");
 		}

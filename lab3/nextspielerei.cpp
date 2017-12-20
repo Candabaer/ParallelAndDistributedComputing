@@ -150,6 +150,21 @@ int main(int argc, char** argv) {
 			BlockC[r][c] = 0;
 		}
 	}
+	cout << "AShifted: " << endl;
+	for (int r = 0; r < row; r++) {
+		for (int c = 0; c < col; c++) {
+			cout << A[r][c] << " ";
+		}
+		cout << endl;
+	}
+	cout << endl;
+	cout << "BShifted: " << endl;
+	for (int r = 0; r < row; r++) {
+		for (int c = 0; c < col; c++) {
+			cout <<B[r][c] << " ";
+		}
+		cout << endl;
+	}
 //-------------------Send Blocks------------------------//
 	if (rank == 0) {
 		int** saveA = NULL; // = alloc_2d_int(blockSize, blockSize);

@@ -151,17 +151,17 @@ int main(int argc, char** argv) {
 		}
 	}
 	cout << "AShifted: " << endl;
-	for (int r = 0; r < row; r++) {
-		for (int c = 0; c < col; c++) {
+	for (int r = 0; r < totalMSize; r++) {
+		for (int c = 0; c < totalMSize; c++) {
 			cout << A[r][c] << " ";
 		}
 		cout << endl;
 	}
 	cout << endl;
 	cout << "BShifted: " << endl;
-	for (int r = 0; r < row; r++) {
-		for (int c = 0; c < col; c++) {
-			cout <<B[r][c] << " ";
+	for (int r = 0; r < totalMSize; r++) {
+		for (int c = 0; c < totalMSize; c++) {
+			cout << B[r][c] << " ";
 		}
 		cout << endl;
 	}

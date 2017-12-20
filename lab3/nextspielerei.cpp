@@ -125,8 +125,8 @@ int main(int argc, char** argv) {
 	aB = (totalMSize*totalMSize) / (blockSize*blockSize);
 	cout << "hello after" << endl;
 	MPI_Comm rowCom, colCom;
-	MPI_Comm_split(MPI_COMM_WORLD, rank / sqrt(aB), rank, &rowCom);
-	MPI_Comm_split(MPI_COMM_WORLD, rank % sqrt(aB), rank, &colCom);
+	MPI_Comm_split(MPI_COMM_WORLD, rank / (int)sqrt(aB), rank, &rowCom);
+	MPI_Comm_split(MPI_COMM_WORLD, rank % (int)sqrt(aB), rank, &colCom);
 	int row_rank, row_size, col_rank, col_size;
 	MPI_Comm_rank(rowCom, &row_rank);
 	MPI_Comm_size(rowCom, &row_size);

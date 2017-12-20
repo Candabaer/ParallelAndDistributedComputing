@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
 	MPI_Request requestForA, requestForB, requestForC;
 	MPI_Status statusForA, statusForB, statusForC;
 
-	blockSize; = totalMSize / sqrt(np);
+	blockSize = totalMSize / sqrt(np);
 	aB = (totalMSize*totalMSize) / (blockSize*blockSize);
 
 	cout << "NP: " << np << endl;

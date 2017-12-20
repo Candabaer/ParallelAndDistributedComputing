@@ -187,12 +187,12 @@ int main(int argc, char** argv) {
 		row_Dest = (row_Dest + blockSize) % blockSize;
 		col_Dest = (col_rank - 1);
 		col_Dest = (col_Dest + blockSize) % blockSize;
-		a2 = a;
-		b2 = b;
+		a2 = BlockA;
+		b2 = BlockB;
 		MPI_Sendrecv(&BlockA[0][0], blockSize*blockSize, MPI_INT, row_Dest, 0, &a2[0][0], blockSize*blockSize, MPI_INT, (row_rank + 1) % aB, 0, rowCom, &statusForA);
 		MPI_Sendrecv(&BlockB[0][0], blockSize*blockSize, MPI_INT, col_Dest, 0, &b2[0][0], blockSize*blockSize, MPI_INT, (col_rank + 1) % aB, 0, colCom, &statusForB);
-		a = a2;
-		b = b2;
+		BlockA = a2;
+		BlockB = b2;
 	}
 	if (rank != 0) {
 		MPI_Send(&BlockC[0][0], blockSize*blockSize, MPI_INT, 0, 0, MPI_COMM_WORLD);

@@ -13,9 +13,9 @@ int rank, np, peer;
 int length;
 char name[MPI_MAX_PROCESSOR_NAME + 1];
 const int totalMSize = 8;
-const int blockSize = totalMSize / sqrt(np);
+int blockSize;
 int closeToRandomVariable = 1;
-int aB = (totalMSize*totalMSize) / (blockSize*blockSize);
+int aB;
 
 int A[totalMSize][totalMSize] = {
 	{ 1, 1, 2, 4, 5, 6, 7, 8 },
@@ -117,14 +117,9 @@ void blockIntoMat(int** block, int res[][totalMSize], int sRow, int sCol, int dR
 
 int main(int argc, char** argv) {
 //-----------------------Init Part------------------------//
-
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &np);
-
-	cout << "NP: " << np << endl;
-	cout << "BlockSize: " << blockSize << endl;
-	cout << "amountBlocks: " << aB << endl;
 
 	MPI_Comm rowCom, colCom;
 	MPI_Comm_split(MPI_COMM_WORLD, rank / aB, rank, &rowCom);
@@ -137,6 +132,13 @@ int main(int argc, char** argv) {
 
 	MPI_Request requestForA, requestForB, requestForC;
 	MPI_Status statusForA, statusForB, statusForC;
+
+	blockSize; = totalMSize / sqrt(np);
+	aB = (totalMSize*totalMSize) / (blockSize*blockSize);
+
+	cout << "NP: " << np << endl;
+	cout << "BlockSize: " << blockSize << endl;
+	cout << "amountBlocks: " << aB << endl;
 
 	if (rank == 0) {
 		initialShift();

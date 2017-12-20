@@ -44,7 +44,7 @@ int** BlockB;
 int** BlockC;
 
 void printMatrix(int** matrix, int row, int col, const string& msg) {
-	std::cerr << msg << std::endl;
+	std::cout << msg << std::endl;
 	for (int r = 0; r < row; r++) {
 		for (int c = 0; c < col; c++) {
 			cout << matrix[r][c] << " ";

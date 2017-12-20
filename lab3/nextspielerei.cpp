@@ -184,7 +184,7 @@ int main(int argc, char** argv) {
 		// cout << "Rank " << rank << "about to receive b which = " << b << endl;
 	}
 	// cerr << rank << " ,a:	" << a << ", b:	" << b << endl;
-	for (int i = 0; i < aB; i++) {
+	for (int i = 0; i < sqrt(aB); i++) {
 		if (rank == closeToRandomVariable) {
 			printMatrix(BlockC, blockSize, blockSize, "Block C before multAdd");
 		}

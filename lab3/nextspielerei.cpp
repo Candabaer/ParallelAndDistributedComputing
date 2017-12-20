@@ -14,7 +14,7 @@ int length;
 char name[MPI_MAX_PROCESSOR_NAME + 1];
 const int totalMSize = 8;
 int blockSize;
-int closeToRandomVariable = 1;
+int closeToRandomVariable = 0;
 int aB;
 
 int A[totalMSize][totalMSize] = {
@@ -117,13 +117,11 @@ void blockIntoMat(int** block, int res[][totalMSize], int sRow, int sCol, int dR
 
 int main(int argc, char** argv) {
 //-----------------------Init Part------------------------//
-	cout << "hello befire mpiinit" << endl;
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &np);
 	blockSize = totalMSize / sqrt(np);
 	aB = (totalMSize*totalMSize) / (blockSize*blockSize);
-	cout << "hello after" << endl;
 	MPI_Comm rowCom, colCom;
 	MPI_Comm_split(MPI_COMM_WORLD, rank / (int)sqrt(aB), rank, &rowCom);
 	MPI_Comm_split(MPI_COMM_WORLD, rank % (int)sqrt(aB), rank, &colCom);
@@ -136,11 +134,10 @@ int main(int argc, char** argv) {
 	MPI_Request requestForA, requestForB, requestForC;
 	MPI_Status statusForA, statusForB, statusForC;
 
-	cout << "NP: " << np << endl;
-	cout << "BlockSize: " << blockSize << endl;
-	cout << "amountBlocks: " << aB << endl;
-
 	if (rank == 0) {
+		cout << "NP: " << np << endl;
+		cout << "BlockSize: " << blockSize << endl;
+		cout << "amountBlocks: " << aB << endl;
 		initialShift();
 	}
 
@@ -191,10 +188,12 @@ int main(int argc, char** argv) {
 	for (int i = 0; i < aB; i++) {
 		addMult(BlockA, BlockB, blockSize, BlockC);
 		if (rank == closeToRandomVariable) {
-			// cout << "I multiplied a*b=c " << a << "*" << b << "=" << c <<" ,my A is: " << endl;
+			cout << "I multiplied a*b=c " << endl;
+			printMatrix(BlockA,blockSize, blockSize,"BlockA");
+			printMatrix(BlockB, blockSize, blockSize, "BlockB");
+			printMatrix(BlockC, blockSize, blockSize, "BlockC");
 		}
 		int row_Dest, col_Dest;
-		//(n + (i % n)) % n
 		row_Dest = (row_rank - 1);
 		row_Dest = (row_Dest + (int)sqrt(aB)) % (int)sqrt(aB);
 		col_Dest = (col_rank - 1);

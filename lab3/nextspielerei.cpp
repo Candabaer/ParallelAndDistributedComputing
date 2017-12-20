@@ -44,7 +44,7 @@ int** BlockB;
 int** BlockC;
 
 void printMatrix(int** matrix, int row, int col, const string& msg) {
-	std::cout << msg << std::endl;
+	std::cerr << msg << std::endl;
 	for (int r = 0; r < row; r++) {
 		for (int c = 0; c < col; c++) {
 			cout << matrix[r][c] << " ";
@@ -150,7 +150,6 @@ int main(int argc, char** argv) {
 			BlockC[r][c] = 0;
 		}
 	}
-	cout << "After Init" << endl;
 //-------------------Send Blocks------------------------//
 	if (rank == 0) {
 		int** saveA = NULL; // = alloc_2d_int(blockSize, blockSize);
@@ -168,7 +167,7 @@ int main(int argc, char** argv) {
 				else {
 					MPI_Send(&BlockA[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD);
 					MPI_Send(&BlockB[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD);
-					cout << "Test after sending blocks!" << endl;
+					// cout << "Test after sending blocks!" << endl;
 				}
 			}
 		}
@@ -186,6 +185,9 @@ int main(int argc, char** argv) {
 	}
 	// cerr << rank << " ,a:	" << a << ", b:	" << b << endl;
 	for (int i = 0; i < aB; i++) {
+		if (rank == closeToRandomVariable) {
+			printMatrix(BlockC, blockSize, blockSize, "Block C before multAdd");
+		}
 		addMult(BlockA, BlockB, blockSize, BlockC);
 		if (rank == closeToRandomVariable) {
 			cout << "I multiplied a*b=c " << endl;

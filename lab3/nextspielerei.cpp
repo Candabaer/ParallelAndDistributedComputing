@@ -117,9 +117,15 @@ void blockIntoMat(int** block, int res[][totalMSize], int sRow, int sCol, int dR
 
 int main(int argc, char** argv) {
 //-----------------------Init Part------------------------//
+
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &np);
+
+	cout << "NP: " << np << endl;
+	cout << "BlockSize: " << blockSize << endl;
+	cout << "amountBlocks: " << aB << endl;
+
 	MPI_Comm rowCom, colCom;
 	MPI_Comm_split(MPI_COMM_WORLD, rank / aB, rank, &rowCom);
 	MPI_Comm_split(MPI_COMM_WORLD, rank % aB, rank, &colCom);

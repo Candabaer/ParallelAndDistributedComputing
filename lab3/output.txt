@@ -1,0 +1,13 @@
+MAtrix A shifted: 
+1 1 2 4 
+4 5 6 3 
+8 9 6 7 
+3 0 1 2 
+
+Matrix B shifted: 
+8 2 4 6 
+5 1 2 5 
+2 1 6 2 
+0 7 3 1 
+[mpiexec@Oldtown] Sending Ctrl-C to processes as requested
+[mpiexec@Oldtown] Press Ctrl-C again to force abort

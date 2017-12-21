@@ -219,8 +219,8 @@ int main(int argc, char** argv) {
 		a2 = BlockA;
 		b2 = BlockB;
 		if (rank == closeToRandomVariable) {
-			cout << "RowDest: " << row_dest << " , row from: " << (row_rank + 1) % (int)sqrt(aB) << endl;
-			cout << "colDest: " << col_dest << " , row from: " << (col_rank + 1) % (int)sqrt(aB) << endl;
+			cout << "RowDest: " << row_Dest << " , row from: " << (row_rank + 1) % (int)sqrt(aB) << endl;
+			cout << "colDest: " << col_Dest << " , row from: " << (col_rank + 1) % (int)sqrt(aB) << endl;
 		}
 		MPI_Sendrecv(&BlockA[0][0], blockSize*blockSize, MPI_INT, row_Dest, 0, &a2[0][0], blockSize*blockSize, MPI_INT, (row_rank + 1) % (int)sqrt(aB), 0, rowCom, &statusForA);
 		MPI_Sendrecv(&BlockB[0][0], blockSize*blockSize, MPI_INT, col_Dest, 0, &b2[0][0], blockSize*blockSize, MPI_INT, (col_rank + 1) % (int)sqrt(aB), 0, colCom, &statusForB);

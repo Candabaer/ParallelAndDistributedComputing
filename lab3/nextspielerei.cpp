@@ -218,6 +218,10 @@ int main(int argc, char** argv) {
 		col_Dest = (col_Dest + (int)sqrt(aB)) % (int)sqrt(aB);
 		a2 = BlockA;
 		b2 = BlockB;
+		if (rank == closeToRandomVariable) {
+			cout << "RowDest: " << row_dest << " , row from: " << (row_rank + 1) % (int)sqrt(aB) << endl;
+			cout << "colDest: " << col_dest << " , row from: " << (col_rank + 1) % (int)sqrt(aB) << endl;
+		}
 		MPI_Sendrecv(&BlockA[0][0], blockSize*blockSize, MPI_INT, row_Dest, 0, &a2[0][0], blockSize*blockSize, MPI_INT, (row_rank + 1) % (int)sqrt(aB), 0, rowCom, &statusForA);
 		MPI_Sendrecv(&BlockB[0][0], blockSize*blockSize, MPI_INT, col_Dest, 0, &b2[0][0], blockSize*blockSize, MPI_INT, (col_rank + 1) % (int)sqrt(aB), 0, colCom, &statusForB);
 		BlockA = a2;

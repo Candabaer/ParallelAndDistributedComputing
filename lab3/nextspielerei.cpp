@@ -17,6 +17,7 @@ const int totalMSize = 8;
 int blockSize;
 int closeToRandomVariable = 2;
 int aB;
+int sqrtAB;
 
 int A[totalMSize][totalMSize] = {
 	{ 65, 66, 67, 68, 69, 70, 71, 72 },
@@ -77,34 +78,6 @@ void freeMem(int** arr, int size) {
 	delete[] arr;
 }
 
-/*void initialShift() {
-	int TMP_A[totalMSize][totalMSize];
-	int TMP_B[totalMSize][totalMSize];
-
-	copy(&A[0][0], &A[0][0] + totalMSize*totalMSize, &TMP_A[0][0]);
-	copy(&B[0][0], &B[0][0] + totalMSize*totalMSize, &TMP_B[0][0]);
-	for (int i = 0; i< totalMSize; i++) {
-		for (int j = 0; j< totalMSize; j++) {
-			int n = (j - i) % totalMSize;
-			n = (totalMSize + (n% totalMSize)) % totalMSize;
-			int m = (i - j) % totalMSize;
-			m = (totalMSize + (m%totalMSize)) % totalMSize;
-			A[i][n] = TMP_A[i][j];
-			B[m][j] = TMP_B[i][j];
-		}
-	}
-}*/
-
-
-void initialShift(){
-
-
-
-}
-
-
-
-
 void addMult(int** mA, int** mB, int size, int** res) {
 	for (int rRes = 0; rRes < size; rRes++) {
 		for (int r = 0; r < size; r++) {
@@ -133,6 +106,43 @@ void blockIntoMat(int** block, int res[][totalMSize], int sRow, int sCol, int dR
 	}
 }
 
+//Shifts a Matrix for singleLine Values/each Process has one Element
+void initialSingleLineShift() {
+	int TMP_A[totalMSize][totalMSize];
+	int TMP_B[totalMSize][totalMSize];
+
+	copy(&A[0][0], &A[0][0] + totalMSize*totalMSize, &TMP_A[0][0]);
+	copy(&B[0][0], &B[0][0] + totalMSize*totalMSize, &TMP_B[0][0]);
+	for (int i = 0; i < totalMSize; i++) {
+		for (int j = 0; j < totalMSize; j++) {
+			int n = (j - i) % totalMSize;
+			n = (totalMSize + (n% totalMSize)) % totalMSize;
+			int m = (i - j) % totalMSize;
+			m = (totalMSize + (m%totalMSize)) % totalMSize;
+			A[i][n] = TMP_A[i][j];
+			B[m][j] = TMP_B[i][j];
+		}
+	}
+}
+
+// Shifts a Matrix with respective Blocks.
+void initialShift() {
+	int bRow = 0;
+	int bCol = 0;
+	for (int br = 0; br < sqrtAB; br++) {
+		for (int bc = 0; bc < sqrtAB; bc++) {
+			int dA = br - bc;
+			dA = (dA + sqrtAB) % sqrtAB;
+			int dB = bc - br;
+			dB = (dB + sqrtAB) % sqrtAB;
+			int** bA = blockOutOfMat(A, br*blockSize, bc*blockSize, blockSize, blockSize);
+			int** bB = blockOutOfMat(B, br*blockSize, bc*blockSize, blockSize, blockSize);
+			blockIntoMat(bA, A, br*blockSize, dA*blockSize, blockSize, blockSize);
+			blockIntoMat(bA, A, dB*blockSize, bc*blockSize, blockSize, blockSize);
+		}
+	}
+}
+
 int main(int argc, char** argv) {
 //-----------------------Init Part------------------------//
 	MPI_Init(&argc, &argv);
@@ -140,6 +150,7 @@ int main(int argc, char** argv) {
 	MPI_Comm_size(MPI_COMM_WORLD, &np);
 	blockSize = totalMSize / sqrt(np);
 	aB = (totalMSize*totalMSize) / (blockSize*blockSize);
+	sqrtAB = sqrt(aB);
 	MPI_Comm rowCom, colCom;
 	MPI_Comm_split(MPI_COMM_WORLD, rank / (int)sqrt(aB), rank, &rowCom);
 	MPI_Comm_split(MPI_COMM_WORLD, rank % (int)sqrt(aB), rank, &colCom);
@@ -188,10 +199,10 @@ int main(int argc, char** argv) {
 	if (rank == 0) {
 		int** saveA = alloc_2d_int(blockSize, blockSize);
 		int** saveB = alloc_2d_int(blockSize, blockSize);
-		for (int br = 0; br < sqrt(aB); br++) {
-			for (int bc = 0; bc < sqrt(aB); bc++) {
+		for (int br = 0; br < sqrtAB; br++) {
+			for (int bc = 0; bc < sqrtAB; bc++) {
 				int destination = bc + (br * sqrt(aB));
-								BlockA = blockOutOfMat(A, br*blockSize, bc*blockSize, blockSize, blockSize);
+				BlockA = blockOutOfMat(A, br*blockSize, bc*blockSize, blockSize, blockSize);
 				BlockB = blockOutOfMat(B, br*blockSize, bc*blockSize, blockSize, blockSize);
 				printMatrix(BlockB, blockSize, blockSize, to_string(destination));
 				if (0 == destination) {
@@ -207,6 +218,8 @@ int main(int argc, char** argv) {
 		}
 		std::copy(&saveA[0][0],&saveA[0][0]+blockSize*blockSize,&BlockA[0][0]);
 		std::copy(&saveB[0][0],&saveB[0][0]+blockSize*blockSize,&BlockB[0][0]);
+		freeMem(saveA, blockSize);
+		freeMem(saveB, blockSize);
 	}
 //-----------------------DO MPI WITH BLOCKS------------------------//
 	int** a2 = alloc_2d_int(blockSize, blockSize);
@@ -218,7 +231,7 @@ int main(int argc, char** argv) {
 		// cout << "Rank " << rank << "about to receive b which = " << b << endl;
 	}
 	// cerr << rank << " ,a:	" << a << ", b:	" << b << endl;
-	for (int i = 0; i < sqrt(aB); i++) {
+	for (int i = 0; i < sqrtAB; i++) {
 		if (rank == closeToRandomVariable) {
 			printMatrix(BlockC, blockSize, blockSize, "Block C before multAdd");
 		}
@@ -231,17 +244,17 @@ int main(int argc, char** argv) {
 		}
 		int row_Dest, col_Dest;
 		row_Dest = (row_rank - 1);
-		row_Dest = (row_Dest + (int)sqrt(aB)) % (int)sqrt(aB);
+		row_Dest = (row_Dest + sqrtAB) % sqrtAB;
 		col_Dest = (col_rank - 1);
-		col_Dest = (col_Dest + (int)sqrt(aB)) % (int)sqrt(aB);
+		col_Dest = (col_Dest + sqrtAB) % sqrtAB;
 		//std::copy(&BlockA[0][0],&BlockA[0][0]+blockSize*blockSize,&a2[0][0]);
 		//std::copy(&BlockB[0][0],&BlockB[0][0]+blockSize*blockSize,&b2[0][0]);
 		if (rank == closeToRandomVariable) {
-			cout << "RowDest: " << row_Dest << " , row from: " << (row_rank + 1) % (int)sqrt(aB) << endl;
-			cout << "colDest: " << col_Dest << " , row from: " << (col_rank + 1) % (int)sqrt(aB) << endl;
+			cout << "RowDest: " << row_Dest << " , row from: " << (row_rank + 1) % sqrtAB << endl;
+			cout << "colDest: " << col_Dest << " , row from: " << (col_rank + 1) % sqrtAB << endl;
 		}
-		MPI_Sendrecv(&BlockA[0][0], blockSize*blockSize, MPI_INT, row_Dest, 0, &a2[0][0], blockSize*blockSize, MPI_INT, (row_rank + 1) % (int)sqrt(aB), 0, rowCom, &statusForA);
-		MPI_Sendrecv(&BlockB[0][0], blockSize*blockSize, MPI_INT, col_Dest, 0, &b2[0][0], blockSize*blockSize, MPI_INT, (col_rank + 1) % (int)sqrt(aB), 0, colCom, &statusForB);
+		MPI_Sendrecv(&BlockA[0][0], blockSize*blockSize, MPI_INT, row_Dest, 0, &a2[0][0], blockSize*blockSize, MPI_INT, (row_rank + 1) % sqrtAB, 0, rowCom, &statusForA);
+		MPI_Sendrecv(&BlockB[0][0], blockSize*blockSize, MPI_INT, col_Dest, 0, &b2[0][0], blockSize*blockSize, MPI_INT, (col_rank + 1) % sqrtAB, 0, colCom, &statusForB);
 		std::copy(&a2[0][0],&a2[0][0]+blockSize*blockSize,&BlockA[0][0]);
 		std::copy(&b2[0][0],&b2[0][0]+blockSize*blockSize,&BlockB[0][0]);
 	}
@@ -250,9 +263,9 @@ int main(int argc, char** argv) {
 	}
 //----------------------------Recv Blocks------------------------//
 	if (rank == 0) {
-		for (int i = 0; i < sqrt(aB); i++) {
-			for (int j = 0; j < sqrt(aB); j++) {
-				int destination = j + (i * sqrt(aB));
+		for (int i = 0; i < sqrtAB; i++) {
+			for (int j = 0; j < sqrtAB; j++) {
+				int destination = j + (i * sqrtAB);
 				if (destination != 0) {
 					MPI_Recv(&BlockC[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD, &status);
 				}

@@ -127,16 +127,18 @@ void initialSingleLineShift() {
 
 // Shifts a Matrix with respective Blocks.
 void initialShift() {
-	int bRow = 0;
-	int bCol = 0;
+	int TMP_A[totalMSize][totalMSize];
+	int TMP_B[totalMSize][totalMSize];
+	copy(&A[0][0], &A[0][0] + totalMSize*totalMSize, &TMP_A[0][0]);
+	copy(&B[0][0], &B[0][0] + totalMSize*totalMSize, &TMP_B[0][0]);
 	for (int br = 0; br < sqrtAB; br++) {
 		for (int bc = 0; bc < sqrtAB; bc++) {
 			int dA = br - bc;
 			dA = (dA + sqrtAB) % sqrtAB;
 			int dB = bc - br;
 			dB = (dB + sqrtAB) % sqrtAB;
-			int** bA = blockOutOfMat(A, br*blockSize, bc*blockSize, blockSize, blockSize);
-			int** bB = blockOutOfMat(B, br*blockSize, bc*blockSize, blockSize, blockSize);
+			int** bA = blockOutOfMat(TMP_A, br*blockSize, bc*blockSize, blockSize, blockSize);
+			int** bB = blockOutOfMat(TMP_B, br*blockSize, bc*blockSize, blockSize, blockSize);
 			blockIntoMat(bA, A, br*blockSize, dA*blockSize, blockSize, blockSize);
 			blockIntoMat(bB, B, dB*blockSize, bc*blockSize, blockSize, blockSize);
 		}

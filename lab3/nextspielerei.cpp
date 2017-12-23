@@ -138,7 +138,7 @@ void initialShift() {
 			int** bA = blockOutOfMat(A, br*blockSize, bc*blockSize, blockSize, blockSize);
 			int** bB = blockOutOfMat(B, br*blockSize, bc*blockSize, blockSize, blockSize);
 			blockIntoMat(bA, A, br*blockSize, dA*blockSize, blockSize, blockSize);
-			blockIntoMat(bA, A, dB*blockSize, bc*blockSize, blockSize, blockSize);
+			blockIntoMat(bB, B, dB*blockSize, bc*blockSize, blockSize, blockSize);
 		}
 	}
 }

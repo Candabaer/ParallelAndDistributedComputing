@@ -133,9 +133,9 @@ void initialShift() {
 	copy(&B[0][0], &B[0][0] + totalMSize*totalMSize, &TMP_B[0][0]);
 	for (int br = 0; br < sqrtAB; br++) {
 		for (int bc = 0; bc < sqrtAB; bc++) {
-			int dA = br - bc;
+			int dA = bc - br;
 			dA = (dA + sqrtAB) % sqrtAB;
-			int dB = bc - br;
+			int dB = br - bc;
 			dB = (dB + sqrtAB) % sqrtAB;
 			int** bA = blockOutOfMat(TMP_A, br*blockSize, bc*blockSize, blockSize, blockSize);
 			int** bB = blockOutOfMat(TMP_B, br*blockSize, bc*blockSize, blockSize, blockSize);

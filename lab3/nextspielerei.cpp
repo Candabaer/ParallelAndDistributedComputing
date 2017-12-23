@@ -218,8 +218,8 @@ int main(int argc, char** argv) {
 		}
 		std::copy(&saveA[0][0],&saveA[0][0]+blockSize*blockSize,&BlockA[0][0]);
 		std::copy(&saveB[0][0],&saveB[0][0]+blockSize*blockSize,&BlockB[0][0]);
-		freeMem(saveA, blockSize);
-		freeMem(saveB, blockSize);
+	//	freeMem(saveA, blockSize);
+	//	freeMem(saveB, blockSize);
 	}
 //-----------------------DO MPI WITH BLOCKS------------------------//
 	int** a2 = alloc_2d_int(blockSize, blockSize);

@@ -67,10 +67,16 @@ double **alloc_2d_int(int rows, int cols) {
 }
 
 void freeMem(double** arr, int size) {
-	for (int i = 0; i < size; ++i) {
-		delete[] arr[i];//deletes an inner array of integer;
+	for (int r = 0; r < row; r++) {
+		for (int c = 0; c < col; c++) {
+			delete arr[i];
+		}
 	}
-	delete[] arr;
+	delete arr;
+	//for (int i = 0; i < size; ++i) {
+	//	delete[] arr[i];	//deletes an inner array of integer;
+	//}
+	//delete[] arr;
 }
 
 void addMult(double** mA, double** mB, int size, double** res) {
@@ -147,7 +153,6 @@ int main(int argc, char** argv) {
 	else {
 		MPI_Recv(&totalMSize, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
 	}
-	cout << "after recv size" << endl;
 	blockSize = totalMSize / sqrt(np);
 	aB = (totalMSize*totalMSize) / (blockSize*blockSize);
 	sqrtAB = sqrt(aB);
@@ -176,30 +181,24 @@ int main(int argc, char** argv) {
 	/*	cout << "NP: " << np << endl;
 		cout << "BlockSize: " << blockSize << endl;
 		cout << "amountBlocks: " << aB << endl;	*/	
-		cout << "After init" << endl;
 		double** TMP_A = alloc_2d_int(totalMSize, totalMSize);
 		double** TMP_B = alloc_2d_int(totalMSize, totalMSize);
 		copy(&A[0][0], &A[0][0] + totalMSize*totalMSize, &TMP_A[0][0]);
 		copy(&B[0][0], &B[0][0] + totalMSize*totalMSize, &TMP_B[0][0]);
-		cout << "After copy" << endl;
 		for (int br = 0; br < sqrtAB; br++) {
 			for (int bc = 0; bc < sqrtAB; bc++) {
 				int dA = bc - br;
 				dA = (dA + sqrtAB) % sqrtAB;
 				int dB = br - bc;
 				dB = (dB + sqrtAB) % sqrtAB;
-				cout << "before block out of" << endl;
 				double** bA = blockOutOfMat(TMP_A, br*blockSize, bc*blockSize, blockSize, blockSize,blockSize);
 				double** bB = blockOutOfMat(TMP_B, br*blockSize, bc*blockSize, blockSize, blockSize,blockSize);
-				cout << "After block out of" << endl;
 				blockIntoMat(bA, A, br*blockSize, dA*blockSize, blockSize, blockSize);
 				blockIntoMat(bB, B, dB*blockSize, bc*blockSize, blockSize, blockSize);
-				cout << "After block into" << endl;
 			}
 		}
 		freeMem(TMP_A, totalMSize);
 		freeMem(TMP_B, totalMSize);
-		cout << "after Shift" << endl;
 		//-------------------Send Blocks------------------------//
 		double** saveA = alloc_2d_int(blockSize, blockSize);
 		double** saveB = alloc_2d_int(blockSize, blockSize);

@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iostream>
 #include <string.h>
 #include <sstream>
@@ -5,7 +6,6 @@
 #include "mpi.h"
 #include <vector>
 #include <cstdlib>
-#include <chrono>
 
 using namespace std;
 
@@ -50,12 +50,12 @@ void printMatrix(double** matrix, int row, int col, const string& msg) {
 	}
 }
 
-string to_string(int egal){
-	ostringstream tmp;
-	tmp << egal;
-	return tmp.str();
+int strToInt(const string &str) {
+	std::stringstream temp(str);
+	int res = 0;
+	temp >> res;
+	return res;
 }
-
 //Use to allocate continously memory.
 double **alloc_2d_int(int rows, int cols) {
 	double *data = (double *)malloc(rows*cols * sizeof(double));
@@ -147,7 +147,7 @@ int main(int argc, char** argv) {
 			cerr << "Not enough Arguments should be : int" << endl;
 			return -1;
 		}
-		int mSize = to_string(argv[1]);
+		int mSize = strToInt(argv[1]);
 		A = alloc_2d_int(mSize,mSize);
 		B = alloc_2d_int(mSize, mSize);
 		for (int r = 0; r < mSize; r++) {
@@ -156,21 +156,9 @@ int main(int argc, char** argv) {
 				createRandomDouble(B[r][c]);
 			}
 		}
-		cout << "A: " << endl;
-		for (int r = 0; r < totalMSize; r++) {
-			for (int c = 0; c < totalMSize; c++) {
-				cout << A[r][c] << " ";
-			}
-			cout << endl;
-		}
-		cout << "\n B:" << endl;
-		for (int r = 0; r < totalMSize; r++) {
-			for (int c = 0; c < totalMSize; c++) {
-				cout << B[r][c] << " ";
-			}
-			cout << endl;
-		}
 		totalMSize = mSize;
+		printMatrix(A, totalMSize, totalMSize, "Matrix A:");
+		printMatrix(B, totalMSize, totalMSize, "Matrix B:");
 		for (int z = 0; z < np; z++) {
 			MPI_Send(&mSize, 1, MPI_INT, z, 0, MPI_COMM_WORLD);
 		}

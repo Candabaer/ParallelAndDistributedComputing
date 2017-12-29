@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
 		totalMSize = mSize;
 		printMatrix(A, totalMSize, totalMSize, "Matrix A:");
 		printMatrix(B, totalMSize, totalMSize, "Matrix B:");
-		for (int z = 0; z < np; z++) {
+		for (int z = 1; z < np; z++) {
 			MPI_Send(&mSize, 1, MPI_INT, z, 0, MPI_COMM_WORLD);
 		}
 	}

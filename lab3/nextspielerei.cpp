@@ -2,7 +2,6 @@
 #include <string.h>
 #include <sstream>
 #include <complex>
-#include "CMatrix.h"
 #include "mpi.h"
 #include <vector>
 #include <cstdlib>

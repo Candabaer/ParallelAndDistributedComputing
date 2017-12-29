@@ -200,7 +200,7 @@ int main(int argc, char** argv) {
 				int destination = bc + (br * sqrt(aB));
 				BlockA = blockOutOfMat(A, br*blockSize, bc*blockSize, blockSize, blockSize,blockSize);
 				BlockB = blockOutOfMat(B, br*blockSize, bc*blockSize, blockSize, blockSize,blockSize);
-				printMatrix(BlockB, blockSize, blockSize, to_string(destination));
+				//printMatrix(BlockB, blockSize, blockSize, to_string(destination));
 				if (0 == destination) {
 					std::copy(&BlockA[0][0],&BlockA[0][0]+blockSize*blockSize,&saveA[0][0]);
 					std::copy(&BlockB[0][0],&BlockB[0][0]+blockSize*blockSize,&saveB[0][0]);
@@ -215,7 +215,7 @@ int main(int argc, char** argv) {
 		std::copy(&saveB[0][0],&saveB[0][0]+blockSize*blockSize,&BlockB[0][0]);
 		freeMem(saveA);
 		freeMem(saveB);
-		cout << "Test after sending blocks!" << endl;
+		//cout << "Test after sending blocks!" << endl;
 	}
 //-----------------------DO MPI WITH BLOCKS------------------------//
 	{

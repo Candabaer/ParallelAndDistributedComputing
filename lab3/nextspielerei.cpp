@@ -147,6 +147,7 @@ int main(int argc, char** argv) {
 	else {
 		MPI_Recv(&totalMSize, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
 	}
+	cout << "after recv size" << endl;
 	blockSize = totalMSize / sqrt(np);
 	aB = (totalMSize*totalMSize) / (blockSize*blockSize);
 	sqrtAB = sqrt(aB);
@@ -175,6 +176,7 @@ int main(int argc, char** argv) {
 	/*	cout << "NP: " << np << endl;
 		cout << "BlockSize: " << blockSize << endl;
 		cout << "amountBlocks: " << aB << endl;	*/	
+		cout << "After init" << endl;
 		double** TMP_A = alloc_2d_int(totalMSize, totalMSize);
 		double** TMP_B = alloc_2d_int(totalMSize, totalMSize);
 		copy(&A[0][0], &A[0][0] + totalMSize*totalMSize, &TMP_A[0][0]);
@@ -209,7 +211,6 @@ int main(int argc, char** argv) {
 				else {
 					MPI_Send(&BlockA[0][0], blockSize*blockSize, MPI_DOUBLE, destination, 0, MPI_COMM_WORLD);
 					MPI_Send(&BlockB[0][0], blockSize*blockSize, MPI_DOUBLE, destination, 0, MPI_COMM_WORLD);
-					// cout << "Test after sending blocks!" << endl;
 				}
 			}
 		}
@@ -217,6 +218,7 @@ int main(int argc, char** argv) {
 		std::copy(&saveB[0][0],&saveB[0][0]+blockSize*blockSize,&BlockB[0][0]);
 		freeMem(saveA, blockSize);
 		freeMem(saveB, blockSize);
+		cout << "Test after sending blocks!" << endl;
 	}
 //-----------------------DO MPI WITH BLOCKS------------------------//
 	{

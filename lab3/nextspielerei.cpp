@@ -265,13 +265,13 @@ int main(int argc, char** argv) {
 		std::chrono::microseconds microRunTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 		double runTime = microRunTime.count() / 1000000.0;
 		std::cout << std::endl;
-		std::cout << "Wall clock time = " << runTime << " seconds." << std::endl << std::flush;
 		for (int r = 0; r < totalMSize; r++) {
 			for (int c = 0; c < totalMSize; c++) {
 				cout << C[r][c] << " ";
 			}
 			cout << endl;
 		}	
+		std::cout << "Wall clock time = " << runTime << " seconds." << std::endl << std::flush;
 	}
 	MPI_Finalize();	
     return 0;

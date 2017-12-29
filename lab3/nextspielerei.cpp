@@ -66,17 +66,9 @@ double **alloc_2d_int(int rows, int cols) {
 	return array;
 }
 
-void freeMem(double** arr, int size) {
-	for (int r = 0; r < size; r++) {
-		for (int c = 0; c < size; c++) {
-			delete arr[r][c];
-		}
-	}
-	delete arr;
-	//for (int i = 0; i < size; ++i) {
-	//	delete[] arr[i];	//deletes an inner array of integer;
-	//}
-	//delete[] arr;
+void freeMem(double** arr) {
+	free(arr[0]);
+	free(arr);
 }
 
 void addMult(double** mA, double** mB, int size, double** res) {

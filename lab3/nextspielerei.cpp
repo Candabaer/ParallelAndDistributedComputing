@@ -83,7 +83,7 @@ void addMult(double** mA, double** mB, int size, double** res) {
 	}
 }
 
-int** blockOutOfMat(double** m, int sRow, int sCol, int dRow, int dCol, int blockSize) {
+double** blockOutOfMat(double** m, int sRow, int sCol, int dRow, int dCol, int blockSize) {
 	double** ppBlock = alloc_2d_int(blockSize, blockSize);
 	for (int r = 0, y = sRow; y < sRow + dRow; y++, r++) {
 		for (int c = 0, x = sCol; x < sCol + dCol; x++, c++) {
@@ -130,6 +130,7 @@ void createRandomDouble(double& number) {
 
 int main(int argc, char** argv) {
 //-----------------------Init Part------------------------//
+	srand((unsigned)time(0));
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &np);
@@ -138,7 +139,7 @@ int main(int argc, char** argv) {
 	int blockSize;
 	int aB;
 	int sqrtAB;
-	std::chrono::system_clock::time_point startTime;
+	chrono::system_clock::time_point startTime;
 	if (rank == 0) {
 		if (argc != 1) {
 			cerr << "Not enough Arguments should be : int" << endl;
@@ -167,7 +168,7 @@ int main(int argc, char** argv) {
 			}
 			cout << endl;
 		}
-		startTime = std::chrono::system_clock::now();			
+		startTime = chrono::system_clock::now();			
 		
 		totalMSize = mSize;
 		for (int z = 0; z < np; z++) {
@@ -292,7 +293,7 @@ int main(int argc, char** argv) {
 	}
 //----------------------------Recv Blocks------------------------//
 	if (rank == 0) {
-		double** C = alloc_2d_int(mSize, mSize);
+		double** C = alloc_2d_int(totalMSize, totalMSize);
 		for (int i = 0; i < sqrtAB; i++) {
 			for (int j = 0; j < sqrtAB; j++) {
 				int destination = j + (i * sqrtAB);
@@ -303,13 +304,10 @@ int main(int argc, char** argv) {
 			}
 		}
 		std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
-		std::chrono::microseconds microRunTime
-			= std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+		std::chrono::microseconds microRunTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 		double runTime = microRunTime.count() / 1000000.0;
 		std::cout << std::endl;
-		std::cout << "Wall clock time = " << runTime << " seconds."
-			<< std::endl << std::flush;
-
+		std::cout << "Wall clock time = " << runTime << " seconds." << std::endl << std::flush;
 		for (int r = 0; r < totalMSize; r++) {
 			for (int c = 0; c < totalMSize; c++) {
 				cout << C[r][c] << " ";

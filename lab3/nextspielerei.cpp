@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
 	double** B;
 	std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
 	if (pID == 0) {
-		if (argc != 1) {
+		if (argc != 2) {
 			cerr << "Not enough Arguments should be : int" << endl;
 			return -1;
 		}

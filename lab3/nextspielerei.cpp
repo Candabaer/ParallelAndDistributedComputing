@@ -181,16 +181,20 @@ int main(int argc, char** argv) {
 		double** TMP_B = alloc_2d_int(totalMSize, totalMSize);
 		copy(&A[0][0], &A[0][0] + totalMSize*totalMSize, &TMP_A[0][0]);
 		copy(&B[0][0], &B[0][0] + totalMSize*totalMSize, &TMP_B[0][0]);
+		cout << "After copy" << endl;
 		for (int br = 0; br < sqrtAB; br++) {
 			for (int bc = 0; bc < sqrtAB; bc++) {
 				int dA = bc - br;
 				dA = (dA + sqrtAB) % sqrtAB;
 				int dB = br - bc;
 				dB = (dB + sqrtAB) % sqrtAB;
+				cout << "before block out of" << endl;
 				double** bA = blockOutOfMat(TMP_A, br*blockSize, bc*blockSize, blockSize, blockSize,blockSize);
 				double** bB = blockOutOfMat(TMP_B, br*blockSize, bc*blockSize, blockSize, blockSize,blockSize);
+				cout << "After block out of" << endl;
 				blockIntoMat(bA, A, br*blockSize, dA*blockSize, blockSize, blockSize);
 				blockIntoMat(bB, B, dB*blockSize, bc*blockSize, blockSize, blockSize);
+				cout << "After block into" << endl;
 			}
 		}
 		freeMem(TMP_A, totalMSize);

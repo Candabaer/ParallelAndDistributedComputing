@@ -109,25 +109,6 @@ void createRandomDouble(double& number) {
 	}
 }
 
-//Shifts a Matrix for singleLine Values/each Process has one Element
-//void initialSingleLineShift() {
-//	int TMP_A[totalMSize][totalMSize];
-//	int TMP_B[totalMSize][totalMSize];
-//
-//	copy(&A[0][0], &A[0][0] + totalMSize*totalMSize, &TMP_A[0][0]);
-//	copy(&B[0][0], &B[0][0] + totalMSize*totalMSize, &TMP_B[0][0]);
-//	for (int i = 0; i < totalMSize; i++) {
-//		for (int j = 0; j < totalMSize; j++) {
-//			int n = (j - i) % totalMSize;
-//			n = (totalMSize + (n% totalMSize)) % totalMSize;
-//			int m = (i - j) % totalMSize;
-//			m = (totalMSize + (m%totalMSize)) % totalMSize;
-//			A[i][n] = TMP_A[i][j];
-//			B[m][j] = TMP_B[i][j];
-//		}
-//	}
-//}
-
 int main(int argc, char** argv) {
 //-----------------------Init Part------------------------//
 	srand((unsigned)time(0));

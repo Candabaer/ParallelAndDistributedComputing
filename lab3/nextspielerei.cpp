@@ -192,12 +192,21 @@ int main(int argc, char** argv) {
 	MPI_Request requestForA, requestForB, requestForC;
 	MPI_Status statusForA, statusForB, statusForC;
 	// Shifts a Matrix with respective Blocks.
+	BlockA = alloc_2d_int(blockSize, blockSize);
+	BlockB = alloc_2d_int(blockSize, blockSize);
+	BlockC = alloc_2d_int(blockSize, blockSize);
+	// init all C's with 0 because of += multiplication.
+	for (int r = 0; r < blockSize; r++) {
+		for (int c = 0; c < blockSize; c++) {
+			BlockC[r][c] = 0;
+		}
+	}
 	if (rank == 0) {
 	/*	cout << "NP: " << np << endl;
 		cout << "BlockSize: " << blockSize << endl;
 		cout << "amountBlocks: " << aB << endl;	*/	
-		double TMP_A[totalMSize][totalMSize];
-		double TMP_B[totalMSize][totalMSize];
+		double** TMP_A = alloc_2d_int(totalMSize, totalMSize);
+		double** TMP_B = alloc_2d_int(totalMSize, totalMSize);
 		copy(&A[0][0], &A[0][0] + totalMSize*totalMSize, &TMP_A[0][0]);
 		copy(&B[0][0], &B[0][0] + totalMSize*totalMSize, &TMP_B[0][0]);
 		for (int br = 0; br < sqrtAB; br++) {
@@ -212,18 +221,9 @@ int main(int argc, char** argv) {
 				blockIntoMat(bB, B, dB*blockSize, bc*blockSize, blockSize, blockSize);
 			}
 		}
-	}
-	BlockA = alloc_2d_int(blockSize, blockSize);
-	BlockB = alloc_2d_int(blockSize, blockSize);
-	BlockC = alloc_2d_int(blockSize, blockSize);
-	// init all C's with 0 because of += multiplication.
-	for (int r = 0; r < blockSize; r++) {
-		for (int c = 0; c < blockSize; c++) {
-			BlockC[r][c] = 0;
-		}
-	}
-//-------------------Send Blocks------------------------//
-	if (rank == 0) {
+		freeMem(TMP_A, totalMSize);
+		freeMem(TMP_B, totalMSize);
+		//-------------------Send Blocks------------------------//
 		double** saveA = alloc_2d_int(blockSize, blockSize);
 		double** saveB = alloc_2d_int(blockSize, blockSize);
 		for (int br = 0; br < sqrtAB; br++) {
@@ -245,8 +245,8 @@ int main(int argc, char** argv) {
 		}
 		std::copy(&saveA[0][0],&saveA[0][0]+blockSize*blockSize,&BlockA[0][0]);
 		std::copy(&saveB[0][0],&saveB[0][0]+blockSize*blockSize,&BlockB[0][0]);
-	//	freeMem(saveA, blockSize);
-	//	freeMem(saveB, blockSize);
+		freeMem(saveA, blockSize);
+		freeMem(saveB, blockSize);
 	}
 //-----------------------DO MPI WITH BLOCKS------------------------//
 	{

@@ -138,6 +138,7 @@ int main(int argc, char** argv) {
 		totalMSize = mSize;
 		printMatrix(A, totalMSize, totalMSize, "Matrix A:");
 		printMatrix(B, totalMSize, totalMSize, "Matrix B:");
+		startTime = std::chrono::system_clock::now();
 		for (int z = 1; z < np; z++) {
 			MPI_Send(&mSize, 1, MPI_INT, z, 0, MPI_COMM_WORLD);
 		}
@@ -222,21 +223,15 @@ int main(int argc, char** argv) {
 		double** b2 = alloc_2d_int(blockSize, blockSize);
 		if (pID != 0) {
 			MPI_Recv(&BlockA[0][0], blockSize*blockSize, MPI_DOUBLE, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
-			// cout << "Rank " << rank << "about to receive a whpich = " << a << endl;
 			MPI_Recv(&BlockB[0][0], blockSize* blockSize, MPI_DOUBLE, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
-			// cout << "Rank " << rank << "about to receive b which = " << b << endl;
 		}
-		// cerr << rank << " ,a:	" << a << ", b:	" << b << endl;
 		for (int i = 0; i < sqrtAB; i++) {
-			if (pID == closeToRandomVariable) {
-				printMatrix(BlockC, blockSize, blockSize, "Block C before multAdd");
-			}
 			addMult(BlockA, BlockB, blockSize, BlockC);
 			if (pID == closeToRandomVariable) {
-				cout << "I multiplied a*b=c " << endl;
+				/*cout << "I multiplied a*b=c " << endl;
 				printMatrix(BlockA, blockSize, blockSize, "BlockA");
 				printMatrix(BlockB, blockSize, blockSize, "BlockB");
-				printMatrix(BlockC, blockSize, blockSize, "BlockC");
+				printMatrix(BlockC, blockSize, blockSize, "BlockC");*/
 			}
 			int row_Dest, col_Dest;
 			row_Dest = (row_rank - 1);
@@ -245,10 +240,6 @@ int main(int argc, char** argv) {
 			col_Dest = (col_Dest + sqrtAB) % sqrtAB;
 			//std::copy(&BlockA[0][0],&BlockA[0][0]+blockSize*blockSize,&a2[0][0]);
 			//std::copy(&BlockB[0][0],&BlockB[0][0]+blockSize*blockSize,&b2[0][0]);
-			if (pID == closeToRandomVariable) {
-				cout << "RowDest: " << row_Dest << " , row from: " << (row_rank + 1) % sqrtAB << endl;
-				cout << "colDest: " << col_Dest << " , row from: " << (col_rank + 1) % sqrtAB << endl;
-			}
 			MPI_Sendrecv(&BlockA[0][0], blockSize*blockSize, MPI_DOUBLE, row_Dest, 0, &a2[0][0], blockSize*blockSize, MPI_DOUBLE, (row_rank + 1) % sqrtAB, 0, rowCom, &statusForA);
 			MPI_Sendrecv(&BlockB[0][0], blockSize*blockSize, MPI_DOUBLE, col_Dest, 0, &b2[0][0], blockSize*blockSize, MPI_DOUBLE, (col_rank + 1) % sqrtAB, 0, colCom, &statusForB);
 			std::copy(&a2[0][0], &a2[0][0] + blockSize*blockSize, &BlockA[0][0]);

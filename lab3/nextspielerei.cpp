@@ -67,9 +67,9 @@ double **alloc_2d_int(int rows, int cols) {
 }
 
 void freeMem(double** arr, int size) {
-	for (int r = 0; r < row; r++) {
-		for (int c = 0; c < col; c++) {
-			delete arr[i];
+	for (int r = 0; r < size; r++) {
+		for (int c = 0; c < size; c++) {
+			delete arr[r][c];
 		}
 	}
 	delete arr;

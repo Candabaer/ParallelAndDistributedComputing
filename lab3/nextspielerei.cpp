@@ -189,8 +189,8 @@ int main(int argc, char** argv) {
 				blockIntoMat(bB, B, dB*blockSize, bc*blockSize, blockSize, blockSize);
 			}
 		}
-		freeMem(TMP_A, totalMSize);
-		freeMem(TMP_B, totalMSize);
+		freeMem(TMP_A);
+		freeMem(TMP_B);
 		//-------------------Send Blocks------------------------//
 		double** saveA = alloc_2d_int(blockSize, blockSize);
 		double** saveB = alloc_2d_int(blockSize, blockSize);
@@ -212,8 +212,8 @@ int main(int argc, char** argv) {
 		}
 		std::copy(&saveA[0][0],&saveA[0][0]+blockSize*blockSize,&BlockA[0][0]);
 		std::copy(&saveB[0][0],&saveB[0][0]+blockSize*blockSize,&BlockB[0][0]);
-		freeMem(saveA, blockSize);
-		freeMem(saveB, blockSize);
+		freeMem(saveA);
+		freeMem(saveB);
 		cout << "Test after sending blocks!" << endl;
 	}
 //-----------------------DO MPI WITH BLOCKS------------------------//

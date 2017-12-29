@@ -10,7 +10,7 @@
 using namespace std;
 
 MPI_Status status;
-int rank, np, peer;
+int pID, np, peer;
 int length;
 char name[MPI_MAX_PROCESSOR_NAME + 1];
 
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
 //-----------------------Init Part------------------------//
 	srand((unsigned)time(0));
 	MPI_Init(&argc, &argv);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_rank(MPI_COMM_WORLD, &pID);
 	MPI_Comm_size(MPI_COMM_WORLD, &np);
 	int totalMSize;
 	int closeToRandomVariable = 2;
@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
 	double** A;
 	double** B;
 	std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
-	if (rank == 0) {
+	if (pID == 0) {
 		if (argc != 1) {
 			cerr << "Not enough Arguments should be : int" << endl;
 			return -1;
@@ -151,8 +151,8 @@ int main(int argc, char** argv) {
 	aB = (totalMSize*totalMSize) / (blockSize*blockSize);
 	sqrtAB = sqrt(aB);
 	MPI_Comm rowCom, colCom;
-	MPI_Comm_split(MPI_COMM_WORLD, rank / (int)sqrt(aB), rank, &rowCom);
-	MPI_Comm_split(MPI_COMM_WORLD, rank % (int)sqrt(aB), rank, &colCom);
+	MPI_Comm_split(MPI_COMM_WORLD, pID / (int)sqrt(aB), pID, &rowCom);
+	MPI_Comm_split(MPI_COMM_WORLD, pID % (int)sqrt(aB), pID, &colCom);
 	int row_rank, row_size, col_rank, col_size;
 	MPI_Comm_rank(rowCom, &row_rank);
 	MPI_Comm_size(rowCom, &row_size);
@@ -171,7 +171,7 @@ int main(int argc, char** argv) {
 			BlockC[r][c] = 0;
 		}
 	}
-	if (rank == 0) {
+	if (pID == 0) {
 	/*	cout << "NP: " << np << endl;
 		cout << "BlockSize: " << blockSize << endl;
 		cout << "amountBlocks: " << aB << endl;	*/	
@@ -222,7 +222,7 @@ int main(int argc, char** argv) {
 	{
 		double** a2 = alloc_2d_int(blockSize, blockSize);
 		double** b2 = alloc_2d_int(blockSize, blockSize);
-		if (rank != 0) {
+		if (pID != 0) {
 			MPI_Recv(&BlockA[0][0], blockSize*blockSize, MPI_DOUBLE, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
 			// cout << "Rank " << rank << "about to receive a whpich = " << a << endl;
 			MPI_Recv(&BlockB[0][0], blockSize* blockSize, MPI_DOUBLE, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
@@ -230,11 +230,11 @@ int main(int argc, char** argv) {
 		}
 		// cerr << rank << " ,a:	" << a << ", b:	" << b << endl;
 		for (int i = 0; i < sqrtAB; i++) {
-			if (rank == closeToRandomVariable) {
+			if (pID == closeToRandomVariable) {
 				printMatrix(BlockC, blockSize, blockSize, "Block C before multAdd");
 			}
 			addMult(BlockA, BlockB, blockSize, BlockC);
-			if (rank == closeToRandomVariable) {
+			if (pID == closeToRandomVariable) {
 				cout << "I multiplied a*b=c " << endl;
 				printMatrix(BlockA, blockSize, blockSize, "BlockA");
 				printMatrix(BlockB, blockSize, blockSize, "BlockB");
@@ -247,7 +247,7 @@ int main(int argc, char** argv) {
 			col_Dest = (col_Dest + sqrtAB) % sqrtAB;
 			//std::copy(&BlockA[0][0],&BlockA[0][0]+blockSize*blockSize,&a2[0][0]);
 			//std::copy(&BlockB[0][0],&BlockB[0][0]+blockSize*blockSize,&b2[0][0]);
-			if (rank == closeToRandomVariable) {
+			if (pID == closeToRandomVariable) {
 				cout << "RowDest: " << row_Dest << " , row from: " << (row_rank + 1) % sqrtAB << endl;
 				cout << "colDest: " << col_Dest << " , row from: " << (col_rank + 1) % sqrtAB << endl;
 			}
@@ -256,12 +256,12 @@ int main(int argc, char** argv) {
 			std::copy(&a2[0][0], &a2[0][0] + blockSize*blockSize, &BlockA[0][0]);
 			std::copy(&b2[0][0], &b2[0][0] + blockSize*blockSize, &BlockB[0][0]);
 		}
-		if (rank != 0) {
+		if (pID != 0) {
 			MPI_Send(&BlockC[0][0], blockSize*blockSize, MPI_INT, 0, 0, MPI_COMM_WORLD);
 		}
 	}
 //----------------------------Recv Blocks------------------------//
-	if (rank == 0) {
+	if (pID == 0) {
 		double** C = alloc_2d_int(totalMSize, totalMSize);
 		for (int i = 0; i < sqrtAB; i++) {
 			for (int j = 0; j < sqrtAB; j++) {

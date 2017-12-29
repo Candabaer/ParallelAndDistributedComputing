@@ -195,6 +195,7 @@ int main(int argc, char** argv) {
 		}
 		freeMem(TMP_A, totalMSize);
 		freeMem(TMP_B, totalMSize);
+		cout << "after Shift" << endl;
 		//-------------------Send Blocks------------------------//
 		double** saveA = alloc_2d_int(blockSize, blockSize);
 		double** saveB = alloc_2d_int(blockSize, blockSize);

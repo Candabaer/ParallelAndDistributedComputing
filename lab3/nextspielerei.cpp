@@ -139,15 +139,17 @@ int main(int argc, char** argv) {
 	int blockSize;
 	int aB;
 	int sqrtAB;
-	chrono::system_clock::time_point startTime;
+	double** A;
+	double** B;
+	std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
 	if (rank == 0) {
 		if (argc != 1) {
 			cerr << "Not enough Arguments should be : int" << endl;
 			return -1;
 		}
-		int mSize = argv[1];
-		double** A = alloc_2d_int(mSize,mSize);
-		double** B = alloc_2d_int(mSize, mSize);
+		int mSize = to_string(argv[1]);
+		A = alloc_2d_int(mSize,mSize);
+		B = alloc_2d_int(mSize, mSize);
 		for (int r = 0; r < mSize; r++) {
 			for (int c = 0; c < mSize; c++) {
 				createRandomDouble(A[r][c]);
@@ -168,8 +170,6 @@ int main(int argc, char** argv) {
 			}
 			cout << endl;
 		}
-		startTime = chrono::system_clock::now();			
-		
 		totalMSize = mSize;
 		for (int z = 0; z < np; z++) {
 			MPI_Send(&mSize, 1, MPI_INT, z, 0, MPI_COMM_WORLD);

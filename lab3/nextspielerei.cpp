@@ -6,6 +6,7 @@
 #include "mpi.h"
 #include <vector>
 #include <cstdlib>
+#include <chrono>
 
 using namespace std;
 
@@ -36,11 +37,11 @@ char name[MPI_MAX_PROCESSOR_NAME + 1];
 //};
 //int C[totalMSize][totalMSize];
 
-int** BlockA;
-int** BlockB;
-int** BlockC;
+double** BlockA;
+double** BlockB;
+double** BlockC;
 
-void printMatrix(int** matrix, int row, int col, const string& msg) {
+void printMatrix(double** matrix, int row, int col, const string& msg) {
 	std::cout << msg << std::endl;
 	for (int r = 0; r < row; r++) {
 		for (int c = 0; c < col; c++) {
@@ -57,23 +58,23 @@ string to_string(int egal){
 }
 
 //Use to allocate continously memory.
-int **alloc_2d_int(int rows, int cols) {
-	int *data = (int *)malloc(rows*cols * sizeof(int));
-	int **array = (int **)malloc(rows * sizeof(int*));
+double **alloc_2d_int(int rows, int cols) {
+	double *data = (double *)malloc(rows*cols * sizeof(double));
+	double **array = (double **)malloc(rows * sizeof(double*));
 	for (int i = 0; i<rows; i++)
 		array[i] = &(data[cols*i]);
 
 	return array;
 }
 
-void freeMem(int** arr, int size) {
+void freeMem(double** arr, int size) {
 	for (int i = 0; i < size; ++i) {
 		delete[] arr[i];//deletes an inner array of integer;
 	}
 	delete[] arr;
 }
 
-void addMult(int** mA, int** mB, int size, int** res) {
+void addMult(double** mA, double** mB, int size, double** res) {
 	for (int rRes = 0; rRes < size; rRes++) {
 		for (int r = 0; r < size; r++) {
 			for (int c = 0; c < size; c++) {
@@ -83,8 +84,8 @@ void addMult(int** mA, int** mB, int size, int** res) {
 	}
 }
 
-int** blockOutOfMat(int** m, int sRow, int sCol, int dRow, int dCol, int blockSize) {
-	int** ppBlock = alloc_2d_int(blockSize, blockSize);
+int** blockOutOfMat(double** m, int sRow, int sCol, int dRow, int dCol, int blockSize) {
+	double** ppBlock = alloc_2d_int(blockSize, blockSize);
 	for (int r = 0, y = sRow; y < sRow + dRow; y++, r++) {
 		for (int c = 0, x = sCol; x < sCol + dCol; x++, c++) {
 			ppBlock[r][c] = m[y][x];
@@ -93,11 +94,19 @@ int** blockOutOfMat(int** m, int sRow, int sCol, int dRow, int dCol, int blockSi
 	return ppBlock;
 }
 
-void blockIntoMat(int** block, int** res, int sRow, int sCol, int dRow, int dCol) {
+void blockIntoMat(double** block, double** res, int sRow, int sCol, int dRow, int dCol) {
 	for (int r = 0, y = sRow; y < sRow + dRow; y++, r++) {
 		for (int c = 0, x = sCol; x < sCol + dCol; x++, c++) {
 			res[y][x] = block[r][c];
 		}
+	}
+}
+
+void createRandomDouble(double& number) {
+	number = rand();
+	number = number / rand() * 30.14;
+	if (rand() % 2) {
+		number *= -1;
 	}
 }
 
@@ -130,20 +139,37 @@ int main(int argc, char** argv) {
 	int blockSize;
 	int aB;
 	int sqrtAB;
+	std::chrono::system_clock::time_point startTime;
 	if (rank == 0) {
-		if (argc != 2) {
-			cerr << "Not enough Arguments should be : Matrix(n x n), Matrix(n x n)" << endl;
+		if (argc != 1) {
+			cerr << "Not enough Arguments should be : int" << endl;
 			return -1;
 		}
-		std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
-		CMatrix* A = new CMatrix(argv[1]);
-		CMatrix* B = new CMatrix(argv[2]);
-		if (A.width == B.height || B.width == A.height) {
-			cerr << "Matrices are not square or not the same Dimensions" << endl;
-			return -1;
-		}		
-		int mSize = A.height;
-		CMatrix* C = new CMatrix(mSize, mSize);
+		int mSize = argv[1];
+		double** A = alloc_2d_int(mSize,mSize);
+		double** B = alloc_2d_int(mSize, mSize);
+		for (int r = 0; r < mSize; r++) {
+			for (int c = 0; c < mSize; c++) {
+				createRandomDouble(A[r][c]);
+				createRandomDouble(B[r][c]);
+			}
+		}
+		cout << "A: " << endl;
+		for (int r = 0; r < totalMSize; r++) {
+			for (int c = 0; c < totalMSize; c++) {
+				cout << A[r][c] << " ";
+			}
+			cout << endl;
+		}
+		cout << "\n B:" << endl;
+		for (int r = 0; r < totalMSize; r++) {
+			for (int c = 0; c < totalMSize; c++) {
+				cout << B[r][c] << " ";
+			}
+			cout << endl;
+		}
+		startTime = std::chrono::system_clock::now();			
+		
 		totalMSize = mSize;
 		for (int z = 0; z < np; z++) {
 			MPI_Send(&mSize, 1, MPI_INT, z, 0, MPI_COMM_WORLD);
@@ -171,8 +197,8 @@ int main(int argc, char** argv) {
 	/*	cout << "NP: " << np << endl;
 		cout << "BlockSize: " << blockSize << endl;
 		cout << "amountBlocks: " << aB << endl;	*/	
-		int TMP_A[totalMSize][totalMSize];
-		int TMP_B[totalMSize][totalMSize];
+		double TMP_A[totalMSize][totalMSize];
+		double TMP_B[totalMSize][totalMSize];
 		copy(&A[0][0], &A[0][0] + totalMSize*totalMSize, &TMP_A[0][0]);
 		copy(&B[0][0], &B[0][0] + totalMSize*totalMSize, &TMP_B[0][0]);
 		for (int br = 0; br < sqrtAB; br++) {
@@ -181,8 +207,8 @@ int main(int argc, char** argv) {
 				dA = (dA + sqrtAB) % sqrtAB;
 				int dB = br - bc;
 				dB = (dB + sqrtAB) % sqrtAB;
-				int** bA = blockOutOfMat(TMP_A, br*blockSize, bc*blockSize, blockSize, blockSize,blockSize);
-				int** bB = blockOutOfMat(TMP_B, br*blockSize, bc*blockSize, blockSize, blockSize,blockSize);
+				double** bA = blockOutOfMat(TMP_A, br*blockSize, bc*blockSize, blockSize, blockSize,blockSize);
+				double** bB = blockOutOfMat(TMP_B, br*blockSize, bc*blockSize, blockSize, blockSize,blockSize);
 				blockIntoMat(bA, A, br*blockSize, dA*blockSize, blockSize, blockSize);
 				blockIntoMat(bB, B, dB*blockSize, bc*blockSize, blockSize, blockSize);
 			}
@@ -199,8 +225,8 @@ int main(int argc, char** argv) {
 	}
 //-------------------Send Blocks------------------------//
 	if (rank == 0) {
-		int** saveA = alloc_2d_int(blockSize, blockSize);
-		int** saveB = alloc_2d_int(blockSize, blockSize);
+		double** saveA = alloc_2d_int(blockSize, blockSize);
+		double** saveB = alloc_2d_int(blockSize, blockSize);
 		for (int br = 0; br < sqrtAB; br++) {
 			for (int bc = 0; bc < sqrtAB; bc++) {
 				int destination = bc + (br * sqrt(aB));
@@ -212,8 +238,8 @@ int main(int argc, char** argv) {
 					std::copy(&BlockB[0][0],&BlockB[0][0]+blockSize*blockSize,&saveB[0][0]);
 				}
 				else {
-					MPI_Send(&BlockA[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD);
-					MPI_Send(&BlockB[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD);
+					MPI_Send(&BlockA[0][0], blockSize*blockSize, MPI_DOUBLE, destination, 0, MPI_COMM_WORLD);
+					MPI_Send(&BlockB[0][0], blockSize*blockSize, MPI_DOUBLE, destination, 0, MPI_COMM_WORLD);
 					// cout << "Test after sending blocks!" << endl;
 				}
 			}
@@ -225,12 +251,12 @@ int main(int argc, char** argv) {
 	}
 //-----------------------DO MPI WITH BLOCKS------------------------//
 	{
-		int** a2 = alloc_2d_int(blockSize, blockSize);
-		int** b2 = alloc_2d_int(blockSize, blockSize);
+		double** a2 = alloc_2d_int(blockSize, blockSize);
+		double** b2 = alloc_2d_int(blockSize, blockSize);
 		if (rank != 0) {
-			MPI_Recv(&BlockA[0][0], blockSize*blockSize, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+			MPI_Recv(&BlockA[0][0], blockSize*blockSize, MPI_DOUBLE, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
 			// cout << "Rank " << rank << "about to receive a whpich = " << a << endl;
-			MPI_Recv(&BlockB[0][0], blockSize* blockSize, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+			MPI_Recv(&BlockB[0][0], blockSize* blockSize, MPI_DOUBLE, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
 			// cout << "Rank " << rank << "about to receive b which = " << b << endl;
 		}
 		// cerr << rank << " ,a:	" << a << ", b:	" << b << endl;
@@ -256,8 +282,8 @@ int main(int argc, char** argv) {
 				cout << "RowDest: " << row_Dest << " , row from: " << (row_rank + 1) % sqrtAB << endl;
 				cout << "colDest: " << col_Dest << " , row from: " << (col_rank + 1) % sqrtAB << endl;
 			}
-			MPI_Sendrecv(&BlockA[0][0], blockSize*blockSize, MPI_INT, row_Dest, 0, &a2[0][0], blockSize*blockSize, MPI_INT, (row_rank + 1) % sqrtAB, 0, rowCom, &statusForA);
-			MPI_Sendrecv(&BlockB[0][0], blockSize*blockSize, MPI_INT, col_Dest, 0, &b2[0][0], blockSize*blockSize, MPI_INT, (col_rank + 1) % sqrtAB, 0, colCom, &statusForB);
+			MPI_Sendrecv(&BlockA[0][0], blockSize*blockSize, MPI_DOUBLE, row_Dest, 0, &a2[0][0], blockSize*blockSize, MPI_DOUBLE, (row_rank + 1) % sqrtAB, 0, rowCom, &statusForA);
+			MPI_Sendrecv(&BlockB[0][0], blockSize*blockSize, MPI_DOUBLE, col_Dest, 0, &b2[0][0], blockSize*blockSize, MPI_DOUBLE, (col_rank + 1) % sqrtAB, 0, colCom, &statusForB);
 			std::copy(&a2[0][0], &a2[0][0] + blockSize*blockSize, &BlockA[0][0]);
 			std::copy(&b2[0][0], &b2[0][0] + blockSize*blockSize, &BlockB[0][0]);
 		}
@@ -267,15 +293,24 @@ int main(int argc, char** argv) {
 	}
 //----------------------------Recv Blocks------------------------//
 	if (rank == 0) {
+		double** C = alloc_2d_int(mSize, mSize);
 		for (int i = 0; i < sqrtAB; i++) {
 			for (int j = 0; j < sqrtAB; j++) {
 				int destination = j + (i * sqrtAB);
 				if (destination != 0) {
-					MPI_Recv(&BlockC[0][0], blockSize*blockSize, MPI_INT, destination, 0, MPI_COMM_WORLD, &status);
+					MPI_Recv(&BlockC[0][0], blockSize*blockSize, MPI_DOUBLE, destination, 0, MPI_COMM_WORLD, &status);
 				}
 				blockIntoMat(BlockC, C, i*blockSize, j*blockSize, blockSize, blockSize);
 			}
 		}
+		std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
+		std::chrono::microseconds microRunTime
+			= std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+		double runTime = microRunTime.count() / 1000000.0;
+		std::cout << std::endl;
+		std::cout << "Wall clock time = " << runTime << " seconds."
+			<< std::endl << std::flush;
+
 		for (int r = 0; r < totalMSize; r++) {
 			for (int c = 0; c < totalMSize; c++) {
 				cout << C[r][c] << " ";

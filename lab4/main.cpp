@@ -436,7 +436,7 @@ private:
 	Population* pop;
 	//Map* map = new Map("test_input.txt");
 	Map* map = new Map("zips.txt");
-	int popSize = 1000;
+	int popSize = 500;
 	int gens = 0;
 	Statistics* stats;
 	std::pair<int, double> bestTour;

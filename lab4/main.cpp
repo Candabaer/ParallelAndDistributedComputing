@@ -13,6 +13,7 @@
 #include <set>
 #include <omp.h>
 #include <thread>
+#include <limits.h>
 
 using namespace std;
 
@@ -258,7 +259,7 @@ public:
 				return this->cities[z];
 			}
 		std::cout << "No City found with ID: " << ID << ", in Range [" << r1 << "," << r2 << "]" << endl;
-		return NULL;
+		exit(-1);
 	}
 
 	void setCity(int pos, int ID) {

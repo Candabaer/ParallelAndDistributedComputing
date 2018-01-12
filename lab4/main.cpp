@@ -17,6 +17,8 @@
 
 using namespace std;
 
+int NT = 8;
+
 bool abortEvol;
 
 void timer(int min) {
@@ -649,14 +651,14 @@ public:
 	~genAlgo() {}
 
 	void evolveTillTimesUp(int minutes) {
-			std::thread timer(&timer,minutes);
+			std::thread t(&timer,minutes);
 			int curGen = 0;
 			this->stats->logBasics(this->popSize, this->gens);
 			while (!abortEvol) {
 				this->evolvePopulation(curGen);
 				curGen++;
 			}
-			timer.join();
+			t.join();
 			this->stats->logTime(minutes);
 		}
 };
@@ -664,6 +666,8 @@ public:
 int main(int argc, char *argv[]) {
 	std::srand(unsigned(std::time(0)));
 	abortEvol = false;
+	omp_set_dynamic(0);     // Explicitly disable dynamic teams
+	omp_set_num_threads(NT); // Use 4 threads for all consecutive parallel regions
 	genAlgo Algo;
 	// Algo.startEvolving();
 	Algo.evolveTillTimesUp(15);

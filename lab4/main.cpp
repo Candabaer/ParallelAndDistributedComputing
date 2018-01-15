@@ -1,5 +1,9 @@
 #define _SCL_SECURE_NO_WARNINGS
 
+// g++ -c main.cpp -pthread -std=c++11 -fopenmp -O3
+// g++ main.o -pthread -std=c++11 -fopenmp -O3
+// ./a.out
+
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
@@ -666,8 +670,8 @@ public:
 int main(int argc, char *argv[]) {
 	std::srand(unsigned(std::time(0)));
 	abortEvol = false;
-	omp_set_dynamic(0);     // Explicitly disable dynamic teams
-	omp_set_num_threads(NT); // Use 4 threads for all consecutive parallel regions
+	// omp_set_dynamic(0);     // Explicitly disable dynamic teams
+	// omp_set_num_threads(NT); // Use 4 threads for all consecutive parallel regions
 	genAlgo Algo;
 	// Algo.startEvolving();
 	Algo.evolveTillTimesUp(15);

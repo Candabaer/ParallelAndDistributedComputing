@@ -21,7 +21,7 @@
 
 using namespace std;
 
-int NT = 8;
+int NT = 4;
 
 bool abortEvol;
 
@@ -166,6 +166,7 @@ private:
 	int size;
 	int distance;
 	double fitness;
+	bool changed;
 
 	void calcFitness() {
 		this->fitness = 10000000000*(1 / (double)this->distance);
@@ -176,6 +177,7 @@ public:
 		this->cities = NULL;
 		this->fitness = 0;
 		this->distance = 0;
+		this->changed = true;
 	}
 
 	Tour(int size) {
@@ -183,12 +185,14 @@ public:
 		this->cities = new int[this->size];
 		this->fitness = 0;
 		this->distance = 0;
+		this->changed = true;
 	}
 
 	Tour(Tour* a) {
+		this->changed = a->changed;
 		this->size = a->size;
-		this->distance = 0;
-		this->fitness = 0;
+		this->distance = a->distance;
+		this->fitness = a->fitness;
 		this->cities = new int[this->size];
 		for (int z = 0; z < this->size;z++) {
 			this->cities[z] = int(a->cities[z]);
@@ -265,7 +269,7 @@ public:
 				return this->cities[z];
 			}
 		std::cout << "No City found with ID: " << ID << ", in Range [" << r1 << "," << r2 << "]" << endl;
-		exit(-1);
+		return NULL;
 	}
 
 	void setCity(int pos, int ID) {
@@ -301,7 +305,13 @@ public:
 			}
 		}
 	}
+	bool getChanged() {
+		return this->changed;
+	}
 
+	void setChanged(bool to) {
+		this->changed = to;
+	}
 };
 
 class Population {
@@ -380,7 +390,13 @@ public:
 		double fit = 0.;
 		//#pragma omp parallel for reduction (+:fit)
 		for (int z = 0; z < this->size; z++) {
-			fit = fit+this->tours[z]->CalcFitnessAndDist(this->map);
+			Tour* t = this->tours[z];
+			if (t->getChanged() == true) {
+				fit = fit + t->CalcFitnessAndDist(this->map);
+			}
+			else {
+				fit = fit + t->getFitness();
+			}			
 		}
 		this->avgFitness = fit / (double)this->size;
 		return this->avgFitness;
@@ -408,17 +424,16 @@ public:
 class Statistics {
 private:
 	ofstream logFile;
-	ofstream topCandidates;
 public:
-	Statistics() : logFile("data_output.csv", ofstream::trunc), topCandidates("topTours.csv", ofstream::trunc) {
+	Statistics() : logFile("data_output.csv", ofstream::trunc) {
 
 	}
 	void logData(int gen, double fitness) {
-		this->logFile << gen << ", " << (int)fitness << endl;
+		this->logFile << gen << ", " << fitness << endl;
 	}
 
 	void logTopCandidate(int gen, Tour* tour, Map* map) {
-		this->topCandidates << gen << ", " << tour->getFitness() << ", " << tour->getDistance() << ", " << tour->getTourString(map) << endl;
+		this->logFile << endl << gen << ", " << tour->getFitness() << ", " << tour->getDistance() << ", " << tour->getTourString(map) << endl;
 	}
 
 	void logBasics(int popSize, int gens) {
@@ -440,10 +455,10 @@ private:
 	Population* pop;
 	//Map* map = new Map("test_input.txt");
 	Map* map = new Map("zips.txt");
-	int popSize = 500;
+	int popSize = 400;
 	int gens = 0;
 	Statistics* stats;
-	std::pair<int, double> bestTour;
+	std::pair<int, Tour*> bestTour;
 
 	void mutate(Population* newPop, int toursize) {
 		#pragma omp parallel for
@@ -463,6 +478,7 @@ private:
 				cities[pos1] = val2;
 				cities[pos2] = val1;
 				}
+				newPop->getTour(i)->setChanged(true);
 			}
 		}
 		//tour->print();
@@ -483,7 +499,6 @@ private:
 
 	void selectCrossOver(Population* newPop, int toursize) {
 		int amount = this->popSize * this->crossOverRate;
-		//		#pragma omp parallel for
 		for (int z = 0; z < amount; z++) {
 			int a = rand() % this->popSize;
 			int b;
@@ -624,9 +639,10 @@ private:
 	
 	void doLogging(int gen) {
 		Tour* top = this->pop->getFittest();
-		if (top->getFitness() > bestTour.second) {
-			this->bestTour = std::make_pair(gen, top->getFitness());
-			this->stats->logTopCandidate(gen, top, this->map);
+		if (top->getFitness() > bestTour.second->getFitness()) {
+			delete this->bestTour.second;
+			this->bestTour = std::make_pair(gen, new Tour(top));
+			// this->stats->logTopCandidate(gen, top, this->map);
 		}
 		this->stats->logData(gen, pop->getAvgFitness());
 	}
@@ -648,14 +664,14 @@ public:
 	genAlgo() {
 		pop = new Population(this->map, this->popSize, this->map->size);	
 		this->stats = new Statistics();
-		bestTour = std::make_pair(0,0);
+		bestTour = std::make_pair(0,new Tour(this->pop->getTour(0)));
 		// pop->printAll();
 	}
 
 	~genAlgo() {}
 
 	void evolveTillTimesUp(int minutes) {
-			std::thread t(&timer,minutes);
+			std::thread t(timer,minutes);
 			int curGen = 0;
 			this->stats->logBasics(this->popSize, this->gens);
 			while (!abortEvol) {
@@ -663,6 +679,7 @@ public:
 				curGen++;
 			}
 			t.join();
+			this->stats->logTopCandidate(this->bestTour.first, this->bestTour.second, this->map);
 			this->stats->logTime(minutes);
 		}
 };
@@ -670,8 +687,8 @@ public:
 int main(int argc, char *argv[]) {
 	std::srand(unsigned(std::time(0)));
 	abortEvol = false;
-	// omp_set_dynamic(0);     // Explicitly disable dynamic teams
-	// omp_set_num_threads(NT); // Use 4 threads for all consecutive parallel regions
+	//omp_set_dynamic(0);     // Explicitly disable dynamic teams
+	//omp_set_num_threads(NT); // Use 4 threads for all consecutive parallel regions
 	genAlgo Algo;
 	// Algo.startEvolving();
 	Algo.evolveTillTimesUp(15);

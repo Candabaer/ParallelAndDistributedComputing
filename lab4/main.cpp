@@ -18,6 +18,7 @@
 #include <omp.h>
 #include <thread>
 #include <limits.h>
+#include <list>
 
 using namespace std;
 
@@ -169,7 +170,7 @@ private:
 	bool changed;
 
 	void calcFitness() {
-		this->fitness = 1e17*(1 /pow((double)this->distance,2));
+		this->fitness = 10000000000*(1 / (double)this->distance);
 	}
 public:
 	Tour() {
@@ -428,8 +429,8 @@ public:
 	Statistics() : logFile("data_output.csv", ofstream::trunc) {
 
 	}
-	void logData(int gen, double fitness) {
-		this->logFile << gen << ", " << fitness << endl;
+	void logData(int gen, double fitness, Tour* tour) {
+		this->logFile << gen << ", " << fitness <<", , "<<gen << ", " << tour->getFitness() << endl;
 	}
 
 	void logTopCandidate(int gen, Tour* tour, Map* map) {
@@ -455,7 +456,7 @@ private:
 	Population* pop;
 	//Map* map = new Map("test_input.txt");
 	Map* map = new Map("zips.txt");
-	int popSize = 300;
+	int popSize = 400;
 	int gens = 0;
 	Statistics* stats;
 	std::pair<int, Tour*> bestTour;
@@ -533,16 +534,18 @@ private:
 			pos1 = swt;
 		}		
 		// find Mapping
-		vector<int> vecA;
-		vector<int> vecB;
+		//std::advance(it, 5);
+		list<int> vecA;
+		list<int> vecB;
 		for (int z = pos1; z <= pos2; z++) {
 			vecA.push_back(citiesA[z]);
 			vecB.push_back(citiesB[z]);
 			citiesCAMidB[z] = int(citiesB[z]);
 			citiesCBMidA[z] = int(citiesA[z]);
 		}
+
 		for (int z = 0; z < vecA.size(); z++) {
-			std::vector<int>::iterator it = find(vecB.begin(), vecB.end(), vecA[z]);
+			list<int>::iterator it = find(vecB.begin(), vecB.end(), vecA[z]);
 			if (it != vecB.end()) {	//element gefunden!
 				*it = vecB[z];
 				vecA.erase(vecA.begin() + z);
@@ -550,6 +553,23 @@ private:
 				z--;
 			}
 		}
+		//vector<int> vecA;
+		//vector<int> vecB;
+		//for (int z = pos1; z <= pos2; z++) {
+		//	vecA.push_back(citiesA[z]);
+		//	vecB.push_back(citiesB[z]);
+		//	citiesCAMidB[z] = int(citiesB[z]);
+		//	citiesCBMidA[z] = int(citiesA[z]);
+		//}
+		//for (int z = 0; z < vecA.size(); z++) {
+		//	std::vector<int>::iterator it = find(vecB.begin(), vecB.end(), vecA[z]);
+		//	if (it != vecB.end()) {	//element gefunden!
+		//		*it = vecB[z];
+		//		vecA.erase(vecA.begin() + z);
+		//		vecB.erase(vecB.begin() + z);
+		//		z--;
+		//	}
+		//}
 
 		//cout << "Child before Apllying Map: " << endl;
 		//child->print();
@@ -644,7 +664,7 @@ private:
 			this->bestTour = std::make_pair(gen, new Tour(top));
 			// this->stats->logTopCandidate(gen, top, this->map);
 		}
-		this->stats->logData(gen, pop->getAvgFitness());
+		this->stats->logData(gen, pop->getAvgFitness(), this->bestTour.second);
 	}
 
 	void evolvePopulation(int gen) {

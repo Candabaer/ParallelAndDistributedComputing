@@ -534,18 +534,16 @@ private:
 			pos1 = swt;
 		}		
 		// find Mapping
-		//std::advance(it, 5);
-		list<int> vecA;
-		list<int> vecB;
+		vector<int> vecA;
+		vector<int> vecB;
 		for (int z = pos1; z <= pos2; z++) {
 			vecA.push_back(citiesA[z]);
 			vecB.push_back(citiesB[z]);
 			citiesCAMidB[z] = int(citiesB[z]);
 			citiesCBMidA[z] = int(citiesA[z]);
 		}
-
 		for (int z = 0; z < vecA.size(); z++) {
-			list<int>::iterator it = find(vecB.begin(), vecB.end(), vecA[z]);
+			std::vector<int>::iterator it = find(vecB.begin(), vecB.end(), vecA[z]);
 			if (it != vecB.end()) {	//element gefunden!
 				*it = vecB[z];
 				vecA.erase(vecA.begin() + z);
@@ -553,23 +551,6 @@ private:
 				z--;
 			}
 		}
-		//vector<int> vecA;
-		//vector<int> vecB;
-		//for (int z = pos1; z <= pos2; z++) {
-		//	vecA.push_back(citiesA[z]);
-		//	vecB.push_back(citiesB[z]);
-		//	citiesCAMidB[z] = int(citiesB[z]);
-		//	citiesCBMidA[z] = int(citiesA[z]);
-		//}
-		//for (int z = 0; z < vecA.size(); z++) {
-		//	std::vector<int>::iterator it = find(vecB.begin(), vecB.end(), vecA[z]);
-		//	if (it != vecB.end()) {	//element gefunden!
-		//		*it = vecB[z];
-		//		vecA.erase(vecA.begin() + z);
-		//		vecB.erase(vecB.begin() + z);
-		//		z--;
-		//	}
-		//}
 
 		//cout << "Child before Apllying Map: " << endl;
 		//child->print();

@@ -256,6 +256,10 @@ public:
 		return this->cities;
 	}
 
+	int getSize() {
+		return this->size;
+	}
+
 	int getCity(int pos) {
 		return this->cities[pos];
 	}
@@ -435,6 +439,16 @@ public:
 
 	void logTopCandidate(int gen, Tour* tour, Map* map) {
 		this->logFile << endl << gen << ", " << tour->getFitness() << ", " << tour->getDistance() << ", " << tour->getTourString(map) << endl;
+		ofstream tmp("candidateFromTo");
+		for (int z = 0; z < tour->getSize(); z++) {
+			if (z == tour->getSize()) {
+				tmp << tour->getCity(z) << ", " << tour->getCity(0) << endl;
+			}
+			else {
+				tmp << tour->getCity(z) << ", " << tour->getCity(z+1) << endl;
+			}
+		}
+
 	}
 
 	void logBasics(int popSize, int gens) {
@@ -692,6 +706,6 @@ int main(int argc, char *argv[]) {
 	//omp_set_num_threads(NT); // Use 4 threads for all consecutive parallel regions
 	genAlgo Algo;
 	// Algo.startEvolving();
-	Algo.evolveTillTimesUp(15);
+	Algo.evolveTillTimesUp(1);
 	return 0;
 }

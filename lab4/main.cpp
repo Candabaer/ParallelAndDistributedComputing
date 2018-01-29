@@ -451,8 +451,8 @@ public:
 
 	}
 
-	void logBasics(int popSize, int gens) {
-		this->logFile << "PopSize: " << popSize << ", Gens: " << gens << endl;
+	void logBasics(int popSize, int gens, double mut, double cross, double die) {
+		this->logFile << "PopSize: " << popSize << ",MutationRate: " << mut << ",Crossover: " << cross < ",dying: " << die <<",Gens: " << gens << endl;
 	}
 
 	void logTime(int seks) {
@@ -463,14 +463,14 @@ public:
 class genAlgo {
 private:
 	double mutationRate = 0.05;
-	double crossOverRate = 0.15;
+	double crossOverRate = 0.10;
 	double dying = 0.05;
 	int tournamentSize = 2;
 	bool elitism = false;
 	Population* pop;
 	//Map* map = new Map("test_input.txt");
 	Map* map = new Map("zips.txt");
-	int popSize = 300;
+	int popSize = 200;
 	int gens = 0;
 	Statistics* stats;
 	std::pair<int, Tour*> bestTour;

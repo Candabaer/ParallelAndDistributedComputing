@@ -706,6 +706,6 @@ int main(int argc, char *argv[]) {
 	//omp_set_num_threads(NT); // Use 4 threads for all consecutive parallel regions
 	genAlgo Algo;
 	// Algo.startEvolving();
-	Algo.evolveTillTimesUp(1);
+	Algo.evolveTillTimesUp(15);
 	return 0;
 }

@@ -688,7 +688,7 @@ public:
 	void evolveTillTimesUp(int minutes) {
 			std::thread t(timer,minutes);
 			int curGen = 0;
-			this->stats->logBasics(this->popSize, this->gens);
+			this->stats->logBasics(this->popSize, this->gens, this->mutationRate, this->crossOverRate, this->dying);
 			while (!abortEvol) {
 				this->evolvePopulation(curGen);
 				curGen++;

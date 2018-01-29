@@ -452,7 +452,11 @@ public:
 	}
 
 	void logBasics(int popSize, int gens, double mut, double cross, double die) {
-		this->logFile << "PopSize: " << popSize << ",MutationRate: " << mut << ",Crossover: " << cross < ",dying: " << die <<",Gens: " << gens << endl;
+		std::ostringstream strs;
+		strs << 
+		strs << "PopSize: " << popSize << ",MutationRate: " << mut << ",Crossover: " << cross < ",dying: " << die << ",Gens: " << gens;
+		std::string str = strs.str();
+		this->logFile << str << endl;
 	}
 
 	void logTime(int seks) {

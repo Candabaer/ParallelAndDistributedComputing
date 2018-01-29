@@ -442,10 +442,10 @@ public:
 		ofstream tmp("candidateFromTo");
 		for (int z = 0; z < tour->getSize(); z++) {
 			if (z == tour->getSize()) {
-				tmp << tour->getCity(z) << ", " << tour->getCity(0) << endl;
+				tmp << tour->getCity(z) << " " << tour->getCity(0) << endl;
 			}
 			else {
-				tmp << tour->getCity(z) << ", " << tour->getCity(z+1) << endl;
+				tmp << tour->getCity(z) << " " << tour->getCity(z+1) << endl;
 			}
 		}
 
@@ -463,14 +463,14 @@ public:
 class genAlgo {
 private:
 	double mutationRate = 0.05;
-	double crossOverRate = 0.20;
+	double crossOverRate = 0.15;
 	double dying = 0.05;
 	int tournamentSize = 2;
 	bool elitism = false;
 	Population* pop;
 	//Map* map = new Map("test_input.txt");
 	Map* map = new Map("zips.txt");
-	int popSize = 400;
+	int popSize = 300;
 	int gens = 0;
 	Statistics* stats;
 	std::pair<int, Tour*> bestTour;

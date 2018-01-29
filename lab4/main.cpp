@@ -31,6 +31,12 @@ void timer(int min) {
 	abortEvol = true;
 }
 
+string dts(double d) {
+	std::ostringstream strs;
+	strs << d;
+	return strs.str();
+}
+
 //Node structure
 class City {
 public:
@@ -452,7 +458,7 @@ public:
 	}
 
 	void logBasics(int popSize, int gens, double mut, double cross, double die) {
-		this->logFile << "PopSize: " << popSize << ",MutationRate: " << std::stod(mut) << ",Crossover: " << std::stod(cross) < ",dying: " << std::stod(die) <<",Gens: " << gens << endl;
+		this->logFile << "PopSize: " << popSize << ",MutationRate: " <<dts(mut) << ",Crossover: " << dts(cross) < ",dying: " << dts(die) <<",Gens: " << gens << endl;
 	}
 
 	void logTime(int seks) {

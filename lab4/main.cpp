@@ -34,7 +34,8 @@ void timer(int min) {
 string dts(double d) {
 	std::ostringstream strs;
 	strs << d;
-	return strs.str();
+	string s = strs.str();
+	return s;
 }
 
 //Node structure
@@ -458,7 +459,7 @@ public:
 	}
 
 	void logBasics(int popSize, int gens, double mut, double cross, double die) {
-		this->logFile << "PopSize: " << popSize << ",MutationRate: " <<dts(mut) << ",Crossover: " << dts(cross) < ",dying: " << dts(die) <<",Gens: " << gens << endl;
+		this->logFile << "PopSize: " << popSize << ",MutationRate: " <<dts(mut) << ",Crossover: " << dts(cross) << ",dying: " << dts(die) <<",Gens: " << gens << endl;
 	}
 
 	void logTime(int seks) {

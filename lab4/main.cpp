@@ -446,7 +446,7 @@ public:
 
 	}
 	void logData(int gen, double fitness, Tour* tour) {
-		this->logFile << gen << ", " << fitness <<", , "<<gen << ", " << tour->getFitness() << endl;
+		this->logFile << gen << ", " << fitness <<", , "<<gen << ", " << tour->getDistance() << endl;
 	}
 
 	void logTopCandidate(int gen, Tour* tour, Map* map) {

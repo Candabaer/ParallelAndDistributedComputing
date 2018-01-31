@@ -22,8 +22,6 @@
 
 using namespace std;
 
-int NT = 4;
-
 bool abortEvol;
 
 void timer(int min) {
@@ -735,7 +733,7 @@ int main(int argc, char *argv[]) {
 	}
 	else if (argc == 1) {
 		cout << "Loading Standart" << endl;
-		genAlgo Algo();
+		genAlgo Algo;
 		Algo.evolveTillTimesUp(15);
 	}
 	return 0;

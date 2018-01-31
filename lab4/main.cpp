@@ -2,7 +2,7 @@
 
 // g++ -c main.cpp -pthread -std=c++11 -fopenmp -O3
 // g++ main.o -pthread -std=c++11 -fopenmp -O3
-// ./a.out
+// ./a.out [Threads|PopSize|Mut|Cross|Die] [full,200,0.05,0.1,0.05]
 
 #include <iostream>
 #include <algorithm>
@@ -36,6 +36,13 @@ string dts(double d) {
 	strs << d;
 	string s = strs.str();
 	return s;
+}
+
+double std(string s) {
+	std:istream ist(s);
+	double d;
+	ist >> d;
+	return d;
 }
 
 //Node structure
@@ -690,6 +697,16 @@ public:
 		// pop->printAll();
 	}
 
+	genAlgo(int popSize, double mut, double cross, double die) {
+		this->popSize = popSize;
+		this->mutationRate = mut;
+		this->crossOverRate = cross;
+		this->dying = die;
+		pop = new Population(this->map, this->popSize, this->map->size);
+		this->stats = new Statistics();
+		bestTour = std::make_pair(0, new Tour(this->pop->getTour(0)));
+	}
+
 	~genAlgo() {}
 
 	void evolveTillTimesUp(int minutes) {
@@ -709,10 +726,17 @@ public:
 int main(int argc, char *argv[]) {
 	std::srand(unsigned(std::time(0)));
 	abortEvol = false;
-	//omp_set_dynamic(0);     // Explicitly disable dynamic teams
-	//omp_set_num_threads(NT); // Use 4 threads for all consecutive parallel regions
-	genAlgo Algo;
-	// Algo.startEvolving();
-	Algo.evolveTillTimesUp(15);
+	if (argc == 6) {
+		omp_set_dynamic(0);     // Explicitly disable dynamic teams
+		omp_set_num_threads((int) std(argv[1])); // Use 4 threads for all consecutive parallel regions
+		genAlgo Algo((int)std(argv[2]), std(argv[3]), std(argv[4]), std(argv[5]));
+		cout << "loading width [Threads|PopSize|Mut|Cross|Die] "<< (int)std(argv[2])<<" | " << std(argv[3]) << " | " << std(argv[4]) << " | " << std(argv[5]) << endl;
+		Algo.evolveTillTimesUp(15);
+	}
+	else if (argc == 1) {
+		cout << "Loading Standart" << endl;
+		genAlgo Algo();
+		Algo.evolveTillTimesUp(15);
+	}
 	return 0;
 }

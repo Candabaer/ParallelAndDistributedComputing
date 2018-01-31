@@ -182,7 +182,7 @@ private:
 	bool changed;
 
 	void calcFitness() {
-		this->fitness = 10000000000*(1 / (double)this->distance);
+		this->fitness = 1e12*(1 / pow((double)this->distance,2));
 	}
 public:
 	Tour() {

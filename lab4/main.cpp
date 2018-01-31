@@ -38,7 +38,7 @@ string dts(double d) {
 	return s;
 }
 
-double std(string s) {
+double strToD(string s) {
 	std:istream ist(s);
 	double d;
 	ist >> d;
@@ -728,9 +728,9 @@ int main(int argc, char *argv[]) {
 	abortEvol = false;
 	if (argc == 6) {
 		omp_set_dynamic(0);     // Explicitly disable dynamic teams
-		omp_set_num_threads((int) std(argv[1])); // Use 4 threads for all consecutive parallel regions
-		genAlgo Algo((int)std(argv[2]), std(argv[3]), std(argv[4]), std(argv[5]));
-		cout << "loading width [Threads|PopSize|Mut|Cross|Die] "<< (int)std(argv[2])<<" | " << std(argv[3]) << " | " << std(argv[4]) << " | " << std(argv[5]) << endl;
+		omp_set_num_threads((int) strToD(argv[1])); // Use 4 threads for all consecutive parallel regions
+		genAlgo Algo((int)strToD(argv[2]), strToD(argv[3]), strToD(argv[4]), strToD(argv[5]));
+		cout << "loading width [Threads|PopSize|Mut|Cross|Die] "<< (int)strToD(argv[2])<<" | " << strToD(argv[3]) << " | " << strToD(argv[4]) << " | " << strToD(argv[5]) << endl;
 		Algo.evolveTillTimesUp(15);
 	}
 	else if (argc == 1) {

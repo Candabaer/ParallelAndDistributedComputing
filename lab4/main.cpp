@@ -39,7 +39,7 @@ string dts(double d) {
 }
 
 double strToD(string s) {
-	std:istream ist(s);
+	std:istringstream ist(s);
 	double d;
 	ist >> d;
 	return d;
